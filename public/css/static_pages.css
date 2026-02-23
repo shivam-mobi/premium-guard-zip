@@ -1,0 +1,1424 @@
+/*@font-face {
+    font-family: "Helvetica Condensed Black";
+    src: url(HelveticaCondensedBlack.ttf);
+}
+@font-face {
+    font-family: "Oswald";
+    src: url(Oswald.ttf);
+}
+@font-face {
+    font-family: "Lato";
+    src: url(Lato.ttf);
+}*/
+/* *{
+    margin: 0px;
+    padding: 0px;  
+} */
+body{
+    font-size: 16px;
+    font-family:'Lato',Helvetica,Arial,Lucida,sans-serif;
+}
+/* OIL FILTERS PAGE CSS START */
+.heading-style
+{
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    font-style: normal;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: -1px;
+    line-height: 1.4em;
+    color: #333;
+    font-family: Helvetica Condensed Black;
+    padding-top: 60px;
+    padding-bottom: 20px;
+}
+.no-padding{
+    padding: 0 !important;
+    margin: 0 !important;
+}
+.oil-filter-paragraph
+{
+    /* padding-bottom: 1em; */
+    font-size: 16px;
+    vertical-align: baseline;
+    line-height: 1.4;
+    font-weight: bold;
+    text-align: left;
+    color: #383838;
+    /* font-family: "Open Sans",Arial,sans-serif; */
+    font-family:'Lato',Helvetica,Arial,Lucida,sans-serif;
+}
+.first-section{
+    padding-top:20px;
+    margin-bottom: 70px;
+}
+.third-section{
+    padding-top:50px;
+    margin-bottom: 70px;
+}
+.fourth-section
+{
+    margin-bottom: 70px;
+}
+.last-icons-style{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 20px;
+}
+.if-used-font 
+{
+    font-weight: 400 !important;
+    font-style: italic;
+}
+.ul-style{
+    width: 82%;
+    margin-left: -14px;
+}
+.ul-if-used-font{
+    width: 82%;
+    margin-left: 10px;
+}
+.p-italic
+{
+    font-style: italic;
+}
+.advantages-images{
+    padding-bottom: 20px; 
+    margin-left: 10px;
+}
+.conventional-ul{
+    margin-left:-23px
+}
+.oil-filter-starting
+{
+    padding-left: 0px;
+    padding-right: 0px;
+}
+/* OIL FILTERS PAGE CSS END */
+/* AIR FILTERS PAGE CSS START */
+.air-filter-heading
+{
+    text-align:left;
+    font-size: 30px;
+    font-weight: bold;
+    font-style: normal;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: -1px;
+    line-height: 1.4em;
+    color: #333;
+    /*font-family:'Lato',Helvetica,Arial,Lucida,sans-serif;;*/
+    font-family: Helvetica Condensed Black;
+    padding-top: 60px;
+}
+hr.line {
+    margin-top:0px;
+    margin-bottom: 20px;
+    border-top: 1px solid #d5aa4a;
+    width: 67%;
+}
+.premium-guard-font{
+    font-size: 16px;
+    line-height: 1.4;
+    text-align: left
+}
+.first_sec_sub_title {
+    font-size: 17px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+}
+.first_sec_ul {
+    list-style: none;
+    width: 75%;
+    line-height: 26px;
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+    font-size: 16px;
+    padding: 0px;
+}
+.first_sec_ul li:before {
+    content: '✓';
+    color: #dd991f;
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+    font-size: 15px;
+}
+.first-sec-img{
+    margin-left: -120px;
+    margin-top: 90px;
+    z-index: 10;
+    width: 155%;
+}
+.second-section-style{
+    background-color: #f9f9f9; 
+    height: auto;
+    padding-bottom: 50px;
+}
+.second-sec-heading
+{
+    font-size: 28px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align:center;
+    font-style: normal;
+    letter-spacing: -1px;
+    line-height: 1.4em;
+    color: #333;
+    font-family:'Lato',Helvetica,Arial,Lucida,sans-serif;;
+    padding-top: 30px;
+    /* border-bottom: 1px solid #d5aa4a; */
+    margin: 0px auto;
+}
+.second_sec_title_text {
+    font-size: 17px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding-top: 15px;
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+    text-align: center;
+    margin-bottom: 50px;
+}
+.second_sec_sub_title {
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-bottom: 1px solid #d5aa4a;
+    padding-bottom: 10px;
+}
+.underline { 
+              
+    /* Increase this as per requirement */ 
+    padding-bottom: 10px; 
+    border-bottom-style: solid ; 
+    border-bottom-color:#d5aa4a ;
+    border-bottom-width: 1px; 
+    width: fit-content; 
+}
+.efficiency-heading{
+    margin-left: 10px;
+} 
+.efficiency-p-margin
+{
+    padding-left: 10px;
+}
+.efficiency-p
+{
+    line-height: 1.6;
+    text-align: left;
+    width: 80%;
+    font-size: 16px;
+    padding-top:20px;
+    color: #383838
+}
+.tested-per-font{
+    line-height: 1.6;
+    text-align: left;
+    width: 80%;
+    font-size: 16px;
+    padding-left: 10px;
+    padding-top:5px;
+    color: #383838
+}
+.second-section-p1{
+    font-size: 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding-top: 15px;
+    line-height: 1.7em;
+    color: #383838;
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+}
+.second-section-p2{
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding-top: 10px;
+    line-height: 1.7em;
+    color: #383838;
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+}
+.third-section-banner{
+    padding: 60px 0px;
+    background-image: url(https://www.pgfilters.com/wp-content/uploads/Background-img.png); 
+    background-size: 100%; 
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.third-section-text{
+    color: #dca942;
+    text-transform: uppercase;
+    font-weight: bold; 
+    font-size: 25px; 
+    background-color: #000000; 
+    text-align: center;
+    padding: 10px 0px;
+}
+.round_numeric{ 
+    background-color: black;
+    padding: 10px 17px 10px 17px;
+    border-radius: 100%;
+    color: #d5aa4a;
+    font-weight: 800;
+    font-size: 20px;
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+}
+.third_sec_first_title {
+    font-size: 20px;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding-bottom: 5px;
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+    margin-left: 21px;
+}
+.third-section-p{
+    font-size: 16px;
+    width: 77%;
+    margin-left: 70px;
+    margin-top: 8px;
+}
+.third-section-p1{
+    width: 90%;
+    font-size: 19px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+    margin-left: 50px;
+}
+.third-section-ul{
+    padding: 0 0 23px 1em;
+    line-height: 26px;
+    list-style-type: disc;
+    display: inline;
+    margin-left: 50px;
+    font-size: 16px;
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+}
+.third-section-ul li{
+    display: inline;
+    padding-right: 30px;
+   
+}
+.third-section-ul li::before {
+    content: "\2022";
+    color: #d5aa4a;
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+    font-size: 14px;
+}
+.one-two-padding-top{
+    padding-top:80px;
+}
+.three-five-padding-top{
+    padding-top:20px;
+}
+.four-six-padding-top{
+    padding-top:30px;
+}
+.car-image-padding
+{
+    padding-top:80px;
+    padding-left: 0px;
+}
+.air-filter-replacement-img
+{
+    padding-top:80px;
+    padding-left: 30px;
+}
+.second_sec_icon {
+    display: block !important;
+    margin-left: 0px;
+}
+.superior_main_heading
+{
+    font-size: 20px;
+    font-weight: 750;
+    text-transform: uppercase;
+    padding-top: 10px;
+}
+.bold_text_start
+{
+    font-weight: 750;
+
+}
+.second-div-air
+{
+    padding-bottom: 50px;
+}
+.image_airfilter
+{
+    text-align: center;
+    margin-bottom:30px;
+}
+.image_airfilter2
+{
+    text-align: center;
+    margin-bottom:30px;
+}
+.testing_steps
+{
+    max-width: 90%;
+    height: auto;
+}
+.testing_steps1
+{
+    max-width: 100%;
+    height: auto;
+}
+/* .first_section_graph
+{
+    padding-top:20px;
+} */
+.second_section_graph
+{
+    padding-top:5px;
+}
+.filter_replaced_img
+{
+    max-width: 100%;
+    height: auto;
+    margin-bottom:20px;
+}
+.underline_air_filter
+{
+    text-decoration: underline;
+}
+.superior_engine
+{
+    padding: 50px 0px;
+    
+}
+/* .testing-phase
+{
+    padding: 5px 0px;
+} */
+.air-replaced
+{
+    padding: 40px 0px;
+   
+}
+.filter-replaced-first
+{
+    padding-top: 10px;
+}
+.note-below-text
+{
+    text-align: center;
+    font-size:14px;
+}
+.text-airfilter
+{
+    padding-bottom: 27px;
+}
+.superior_main_div
+{
+    padding-bottom: 20px;
+}
+
+.bulletins-category-title {
+    padding: 2rem 0 0.5rem 0;
+    font-weight: bold;
+    font-style: normal;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: -1px;
+    line-height: 1.4em;
+    font-family: 'Oswald',Helvetica,Arial,Lucida,sans-serif;
+    font-size: 25px;
+}
+
+.bulletins-li {
+    padding-top: 20px;
+}
+
+
+@media (min-width: 980px)
+{
+    .filter_replaced_img
+    {
+        display: inline;
+        float: left;
+        margin-right: 30px;
+    }
+
+/* air filter page */
+}
+
+
+@media(min-width:1400px)
+{
+    .text-airfilter
+    {
+        padding-bottom: 60px;
+    }
+
+}
+
+@media(min-width:1650px)
+{
+    .text-airfilter
+    {
+        padding-bottom: 100px;
+    }
+
+}
+
+
+@media (max-width: 1024px){
+
+    .image_airfilter
+    {
+        margin-top:40px;
+    }
+
+}
+
+/* AIR FILTERS PAGE CSS END*/
+/* CABIN AIR FILTERS PAGE CSS START*/
+.cabin-heading{
+    font-weight: bold;
+    font-style: normal;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: -1px;
+    line-height: 1.4em;
+    text-align: center;
+    font-family: 'Oswald',Helvetica,Arial,Lucida,sans-serif;
+    font-size:30px;
+    padding-bottom: 20px;
+    padding-top: 60px;
+}
+.cabin-first-img
+{
+    margin-top: -100px;
+}
+.cabin-p{
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+    color: #383838;
+    font-size: 16px;
+    line-height: 1.7em;
+    padding-top: 15px;
+}
+.pureflow-cabin-air {
+    background-color: #343434;
+    border-top: 3px solid #70D5ED;
+    /* padding: 14px 0px; */
+
+}
+.pureflow-cabin-air-heading{
+    text-align: center;
+    font-family: Helvetica Condensed Black;
+    letter-spacing: 1px;
+    font-size: 32px;
+    color: #ffffff;
+    margin: 5px 0px;
+    text-decoration: none;
+}
+.cabin-second-section-style{
+    background-color: #fcfcfc; 
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+.cabin-third-sec-p{
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+    color: #383838;
+    font-size: 16px;
+    line-height: 1.7em;
+    padding-top: 32px;
+    padding-left: 35px;
+}
+.advance-filter-text{
+    font-family: 'Oswald',Helvetica,Arial,Lucida,sans-serif;
+    text-align: center;
+    font-weight: bold
+}
+.four-step-p{
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+    color: #383838;
+    font-size: 16px;
+    line-height: 1.7em;
+    padding-top: 15px;
+    text-align: center;
+}
+.four-step-img{
+    display: block;
+    margin: 0px auto;
+    padding:30px 0px;
+}
+.pureflow-cabin-air p a{
+    color: #ffffff;
+    text-decoration: none;
+}
+.cabin-first-sec{
+    margin-left:4.5%;
+}
+.cabin-second-sec{
+    background-color: #fcfcfc;
+    /* padding-left: 0px !important;
+    padding-right: 0px !important; */
+}
+.particulate-img{
+    margin-right: 15px;
+}
+.activated-charcoal-img{
+    margin-left: 15px;
+}
+.cabin-third-sec{
+    margin-top: 70px;
+}
+.cabin-third-sec-padding-top{
+    padding-top: 30px;
+}
+.pureflow-strip-margin{
+    padding-bottom: 100px;
+}
+/* CABIN AIR FILTERS PAGE CSS END*/
+/* CAR FUEL FILTERS PAGE CSS START */
+.car-fuel-heading{
+    font-weight: bold;
+    font-style: normal;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: -1px;
+    line-height: 1.4em;
+    text-align: left;
+    font-family: 'Oswald',Helvetica,Arial,Lucida,sans-serif;
+    font-size:30px;
+    padding-top: 60px;
+    padding-bottom: 20px;
+}
+.car-fuel-subtext-p{
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+    color: #383838;
+    font-size: 16px;
+    line-height: 1.7em;
+    width: 67%;
+    padding-top: 15px;
+    padding-bottom: 30px;
+}
+.car-fuel-img{
+    width:100%;
+    display: block;
+    margin: 0px;
+    padding: 15px;
+}
+.car-transmission-p{
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+    color: #383838;
+    font-size: 16px;
+    line-height: 1.7em;
+    width: 100%;
+    
+}
+.car-transmission-padding{
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+/* PUREFLOW CABIN FILTERS CSS START */
+.pureflow-cabin-padding{
+    padding-left: 0px!important;
+    padding-right: 0px!important; 
+    padding-top: 80px;
+}
+.transmission-padding{
+    padding-left: 0px!important;
+    padding-right: 0px!important; 
+}
+.l-r-padding-zero{
+    padding-left: 0px !important;
+    padding-right: 0px !important; 
+}
+.pureflow-cabin-heading{
+    font-size: 30px;
+    font-family: 'Oswald',Helvetica,Arial,Lucida,sans-serif;
+    color: #333;
+    font-weight: bold;
+    font-style: normal;
+    text-transform: uppercase;
+    text-decoration: none;
+    line-height: 1.4em;
+}
+.first-circle-para{
+    width: 88%;
+    padding-left: 45px;
+    font-size: 19px;
+    padding-top: 24px;
+    color: #383838;
+    font-weight: bold;
+}
+.second-circle-para{
+    width: 88%;
+    padding-left: 45px;
+    font-size: 19px;
+    padding-top: 34px;
+    color: #383838;
+    font-weight: bold;
+}
+.third-circle-para{
+    width: 138%;
+    padding-left: 45px;
+    font-size: 19px;
+    padding-top: 46px;
+    color: #383838;
+    font-weight: bold;
+}
+.pureflow-link-section{
+    padding-left: 0px!important;
+    padding-right: 0px!important; 
+    padding-top: 30px;
+}
+.pureflow-link{
+    background-color: #3b3b3b;
+    padding: 10px;   
+    text-align: center;
+
+}
+.pureflow-link-common-box{
+    width: 50%;
+    margin: 0px auto; 
+    display: flex;
+}
+.pureflow-logo{
+    width: 40%;
+    text-align: right; 
+    padding-top:3px
+}
+.for-all-make-models{
+    color: #dca93f; 
+    font-size: 20px;
+    padding-left: 15px;
+}
+.for-all-make-models-width{
+    width: 50%;
+}
+.pureflow-logo-width{
+    width: 130px;
+    margin-top: -10px;
+}
+.pureflow-second-sec{
+    padding-top: 20px;
+    padding-left: 0px!important;
+    padding-right: 0px!important;
+}
+.pureflow-second-sec-one{
+    padding-right: 10px !important; 
+    padding-left: 0px!important;
+}
+.pureflow-box-one{
+    background-color: #3b3b3b;
+    height: 470px; 
+    border-radius: 20px; 
+    padding: 25px 25px 15px 25px!important;
+}
+.pureflow-box-heading{
+    color: #ffffff;
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+    font-size: 19px;
+    font-weight: 500;
+}
+.pureflow-ul-style{
+    color: #ffffff; 
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+    font-size: 17px;
+    font-weight: 500; 
+    margin-left: -18px;
+}
+.pureflow-li-padding{
+    padding-top: 10px;
+}
+.pureflow-second-sec-two{
+    padding-left: 10px!important; 
+    padding-right: 0px!important;
+}
+.pureflow-last-sec{
+    padding-left: 0px !important;
+    padding-right: 0px !important; 
+    padding-top: 30px; 
+    padding-bottom: 30px;
+}
+.pureflow-last-sec-one{
+    padding-right: 10px!important; 
+    padding-left: 0px !important;
+}
+.pureflow-last-sec-two{
+    padding-right: 5px!important; 
+    padding-left: 5px!important;
+}
+.pureflow-last-sec-three{
+    padding-right: 0px !important; 
+    padding-left: 10px!important;
+}
+.pureflow-last-sec-padd{
+    padding-left: 0px !important;
+    padding-right: 0px !important; 
+    padding-top: 30px; 
+    padding-bottom: 30px;
+}
+.pureflow-p-padding-top{
+    padding-top: 15px;
+}
+.pureflow-last-sec-heading{
+    font-size: 18px;
+    font-weight: 600;
+}
+.pureflow-last-sec-para{
+    font-size: 16px;
+    line-height: 1.7em;
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+}
+.pureflow-image-mobile{
+    display: none;
+}
+.pureflow-image-desktop{
+    display: block;
+}
+.first-sec-circle-img{
+    width: 100%;
+}
+.pureflow-last-imges{
+    width:85%;  
+    display:block; 
+    margin:0px auto;
+}
+.pureflow-second-last-imges{
+    width:84%;  
+    display:block; 
+    margin:0px auto;
+}
+/* PUREFLOW CABIN FILTERS CSS END */
+@media (max-width: 977px){
+/* OIL FILTERS PAGE RESPONSIVE CSS START */
+    
+.second-image-block-height
+{
+    height: 548px!important;
+}
+.cabin-third-sec-margin-btm{
+    margin-bottom: 50px;
+}
+.pureflow-strip-margin{
+    padding-bottom: 80px;
+}
+
+}
+/* air filter page */
+
+
+@media (max-width: 991px){
+
+    .image_airfilter
+    {
+        margin-top:0px;
+    }
+/* OIL FILTERS PAGE RESPONSIVE CSS START */
+    
+.second-image-block-height
+{
+    height: 548px!important;
+}
+.first-sec-img {
+    margin-left: 0px;
+    margin-top: 90px;
+    z-index: 10;
+    width: 100%;
+}
+.cabin-first-img
+{
+    margin-top: 0px;
+}
+.car-fuel-img{
+    width: 70%;
+    display: block;
+    margin: 0px auto;
+    padding: 15px;
+}
+.car-fuel-subtext-p{
+    width: 90%;
+}
+.second_sec_icon {
+    display: block ;
+    margin: 0px auto;
+}
+.pureflow-strip-margin{
+    padding-bottom: 80px;
+}
+/*PUREFLOW CABIN FILTERS PAGE RESPONSIVE CSS START*/
+.cabin-third-sec-p{
+    padding-left: 0px;
+}
+.pureflow-image-mobile{
+    display: block;
+}
+.pureflow-image-desktop{
+    display: none;
+}
+.pureflow-cabin-heading{
+    text-align: center;
+    width: 65%;
+    margin: 0px auto;
+    padding-bottom: 50px;
+}
+.pureflow-link-common-box{
+    width: 100%;
+    margin: 0px auto; 
+    display: flex;
+}
+.for-all-make-models-width{
+    width: 65%;
+}
+.pureflow-logo-width{
+    width: 130px;
+    margin-top: -10px;
+}
+.pureflow-logo{
+    padding-top:6px;
+}
+.pureflow-link-section{
+    padding-left: 79px!important;
+    padding-right: 79px!important; 
+    padding-top: 30px;
+}
+
+.pureflow-box-one{
+    background-color: #3b3b3b;
+    height: auto; 
+    border-radius: 20px; 
+    padding: 25px 25px 15px 25px;
+}
+.first-circle-para{
+    width: 88%;
+    padding-left: 79px;
+    
+   
+}
+.second-circle-para{
+    width: 88%;
+    padding-left: 79px;
+   
+}
+.third-circle-para{
+    width: 88%;
+    padding-left: 79px;
+    
+}
+.pureflow-second-sec-two{
+    padding-left: 0px!important; 
+    padding-right: 0px!important;
+    margin-top: 30px;
+}
+.pureflow-second-sec-one{
+    padding-right: 0px !important; 
+    padding-left: 0px!important;
+}
+.pureflow-last-sec-one{
+    padding-right: 0px!important; 
+    padding-left: 0px !important;
+}
+.pureflow-last-sec-two{
+    padding-right: 0px!important; 
+    padding-left: 0px!important;
+}
+.pureflow-last-sec-three{
+    padding-right: 0px !important; 
+    padding-left: 0px!important;
+}
+.pureflow-last-sec-heading{
+    padding-left: 79px;
+}
+.pureflow-last-sec-para{
+    padding-left: 79px;
+    padding-right: 79px;
+}
+.first-sec-circle-img{
+    width: 70%;
+    display: block;
+    margin: 0px auto;
+}
+.pureflow-last-imges{
+    width:50%;  
+    display:block; 
+    margin:0px auto;
+}
+.pureflow-second-last-imges{
+    width:48%;  
+    display:block; 
+    margin:0px auto;
+}
+/*PUREFLOW CABIN FILTERS PAGE RESPONSIVE CSS END*/
+.activated-charcoal-img{
+    margin-left: 0px;
+}
+.particulate-img{
+    margin-right: 0px;
+}
+}
+@media (max-width: 768px){
+    /* OIL FILTERS PAGE RESPONSIVE CSS START */
+    
+.second-image-block-height
+{
+    height: 548px!important;
+}
+.ul-style
+{
+    font-size: 16px;
+}
+/* OIL FILTERS PAGE RESPONSIVE CSS END */
+/* AIR FILTERS PAGE RESPONSIVE CSS START */
+.first_sec_ul
+{
+    width: 100%;
+}
+.testing_steps
+{
+    max-width: 100%;
+}
+.testing_steps1
+{
+    max-width: 100%;
+}
+
+.first-sec-img{
+    margin-left: 0px;
+    margin-top: 90px;
+    z-index: 0;
+    width: 100%;
+}
+.second_sec_icon {
+    display: block ;
+    margin: 0px auto;
+}
+.air-filter-replacement-img
+{
+    padding-top:80px;
+    padding-left: 0px;
+}
+.third-section-ul{
+    margin-left: 0px;
+}
+.third-section-p1{
+    margin-left: 20px;
+}
+.third-section-banner{
+    padding: 60px 0px;
+    background-size: cover; 
+}
+.first-car-image{
+    width: 60%;
+    margin: 0px auto;
+    display: block;
+}
+/* AIR FILTERS PAGE RESPONSIVE CSS END */
+/* CABIN AIR FILTERS PAGE RESPONSIVE CSS START*/
+.pureflow-strip-margin{
+    padding-bottom: 80px;
+}
+.cabin-first-img
+{
+    margin-top: 0px;
+}
+.cabin-third-sec-margin-btm{
+    margin-bottom: 50px;
+}
+/* CABIN AIR FILTERS PAGE RESPONSIVE CSS END*/
+.car-fuel-subtext-p{
+    width: 90%;
+}
+.car-fuel-img{
+    width: 70%;
+    display: block;
+    margin: 0px auto;
+    padding: 0px;
+}
+.car-transmission-p{
+    font-family: 'Lato',Helvetica,Arial,Lucida,sans-serif;
+    color: #383838;
+    font-size: 16px;
+    line-height: 1.7em;
+    width: 100%;
+    
+}
+/*PUREFLOW CABIN FILTERS PAGE RESPONSIVE CSS START*/
+.pureflow-image-mobile{
+    display: block;
+}
+.pureflow-image-desktop{
+    display: none;
+}
+.pureflow-cabin-heading{
+    text-align: center;
+    width: 100%;
+    margin: 0px auto;
+    padding-bottom: 50px;
+}
+.pureflow-link-common-box{
+    width: 100%;
+    margin: 0px auto; 
+    display: flex;
+}
+.for-all-make-models-width{
+    width: 65%;
+}
+.pureflow-logo-width{
+    width: 130px;
+    margin-top: -10px;
+}
+.pureflow-logo{
+    padding-top:6px;
+}
+.pureflow-link-section{
+    padding-left: 79px!important;
+    padding-right: 79px!important; 
+    padding-top: 30px;
+}
+
+.pureflow-box-one{
+    background-color: #3b3b3b;
+    height: auto; 
+    border-radius: 20px; 
+    padding: 25px 25px 15px 25px!important;
+}
+.first-circle-para{
+    width: 88%;
+    padding-left: 79px;
+   
+}
+.second-circle-para{
+    width: 88%;
+    padding-left: 79px;
+   
+}
+.third-circle-para{
+    width: 88%;
+    padding-left: 79px;
+    
+}
+.pureflow-second-sec-two{
+    padding-left: 0px!important; 
+    padding-right: 0px!important;
+    margin-top: 30px;
+}
+.pureflow-second-sec-one{
+    padding-right: 0px !important; 
+    padding-left: 0px!important;
+}
+.pureflow-last-sec-one{
+    padding-right: 0px!important; 
+    padding-left: 0px !important;
+}
+.pureflow-last-sec-two{
+    padding-right: 0px!important; 
+    padding-left: 0px!important;
+}
+.pureflow-last-sec-three{
+    padding-right: 0px !important; 
+    padding-left: 0px!important;
+}
+.pureflow-last-sec-heading{
+    padding-left: 79px;
+}
+.pureflow-last-sec-para{
+    padding-left: 79px;
+    padding-right: 79px;
+}
+.first-sec-circle-img{
+    width: 70%;
+    display: block;
+    margin: 0px auto;
+}
+/* PUREFLOW CABIN AIR CSS END */
+
+.car-fuel-heading{
+       
+      text-align: center;
+        
+    }
+
+}
+@media (max-width: 576px) {
+    .car-fuel-heading{
+       
+        font-size:30px;
+        
+    }
+/* OIL FILTERS PAGE RESPONSIVE CSS START */
+.heading-style
+{
+    font-size: 30px;
+}
+.left-right-padding
+{
+    padding: 0px 20px;
+}
+.advantages-images
+{
+    display: block;
+    padding: 20px;
+    margin: 0px auto;
+}
+.ul-style
+{
+    /* padding: 0px 30px; */
+    margin-left: 20px;
+}
+.ul-if-used-font
+{
+    padding: 0px 30px;
+}
+.oil-filter-paragraph
+{
+    font-size: 14px;
+}
+.conventional-ul{
+    margin-left:17px
+}
+/* OIL FILTERS PAGE RESPONSIVE CSS END */
+/* AIR FILTERS PAGE RESPONSIVE CSS START */
+.first-sec-img{
+    margin-left: 0px;
+    margin-top: 90px;
+    z-index: 0;
+    width: 100%;
+}
+.second_sec_sub_title {
+    font-size: 16px;
+}
+.second_sec_icon {
+    display: block;
+    margin: 0px auto;
+}
+.third-section-banner{
+    padding: 60px 20px;
+    background-size: cover; 
+}
+.efficiency-heading{
+    margin-left: 0px;
+}
+.efficiency-p-margin
+{
+    padding-left: 0px;
+}
+.tested-per-font{
+    padding-left: 0px;
+}
+.left-right-margin
+{
+    margin: 0px 30px;
+}
+.one-two-padding-top{
+    padding-top:30px;
+}
+.three-five-padding-top{
+    padding-top:30px;
+}
+.four-six-padding-top{
+    padding-top:30px;
+}
+.third-section-p1{
+    margin-left: 16px;
+}
+.third-section-ul{
+    margin-left: 0px;
+}
+.car-image-padding
+{
+    padding-top:0px;
+    padding-left:20px;
+}
+/* AIR FILTERS PAGE RESPONSIVE CSS END */
+/* CABIN AIR FILTERS PAGE RESPONSIVE CSS START*/
+.cabin-first-img
+{
+    margin-top: 0px;
+}
+.cabin-first-sec{
+    margin-left:0px;
+}
+.particulate-img{
+    margin-right: 0px;
+    padding: 0px 30px;
+}
+.activated-charcoal-img{
+    margin-left: 0px;
+    padding: 0px 30px;
+}
+.cabin-third-sec{
+    margin-left:0px;
+    margin-top: 30px;
+}
+.cabin-third-sec-padding-top{
+    padding-top: 0px;
+}
+.cabin-third-sec-margin-btm{
+    margin-bottom: 50px;
+}
+.pureflow-cabin-air {
+    background-color: #343434;
+    border-top: 3px solid #70D5ED;
+    margin: 0px 20px;
+}
+.pureflow-strip-margin{
+    padding-bottom: 50px;
+}
+.cabin-heading{
+    font-size:30px;
+}
+.pureflow-cabin-air-heading{
+    font-size: 23px;
+}
+/* CABIN AIR FILTERS PAGE RESPONSIVE CSS END*/
+.car-fuel-subtext-p{
+    width: 100%;
+}
+/*PUREFLOW CABIN FILTERS PAGE RESPONSIVE CSS START*/
+.pureflow-image-mobile{
+    display: block;
+}
+.pureflow-image-desktop{
+    display: none;
+}
+.pureflow-cabin-heading{
+    text-align: center;
+    margin: 0px auto;
+    padding-bottom: 50px;
+}
+.pureflow-link-common-box{
+    width: 100%;
+    margin: 0px auto; 
+    display: flex;
+}
+.for-all-make-models-width{
+    width: 65%;
+}
+.pureflow-logo-width{
+    width: 130px;
+    margin-top: -10px;
+}
+.pureflow-logo{
+    padding-top:6px;
+}
+.pureflow-link-section{
+    padding-left: 30px!important;
+    padding-right: 30px!important; 
+    padding-top: 30px;
+}
+.pureflow-box-one{
+    background-color: #3b3b3b;
+    height: auto; 
+    border-radius: 20px; 
+    padding: 25px 25px 15px 25px!important;
+}
+.first-circle-para{
+    width: 88%;
+    padding-left: 30px;
+   
+}
+.second-circle-para{
+    width: 88%;
+    padding-left: 30px;
+   
+}
+.third-circle-para{
+    width: 88%;
+    padding-left: 30px;
+    
+}
+.pureflow-second-sec-two{
+    padding-left: 0px!important; 
+    padding-right: 0px!important;
+}
+.pureflow-second-sec-one{
+    padding-right: 0px !important; 
+    padding-left: 0px!important;
+}
+.pureflow-last-sec-one{
+    padding-right: 0px!important; 
+    padding-left: 0px !important;
+}
+.pureflow-last-sec-two{
+    padding-right: 0px!important; 
+    padding-left: 0px!important;
+}
+.pureflow-last-sec-three{
+    padding-right: 0px !important; 
+    padding-left: 0px!important;
+}
+.pureflow-last-sec-heading{
+    padding-left: 30px;
+}
+.pureflow-last-sec-para{
+    padding-left: 30px;
+    padding-right: 30px;
+}
+.first-sec-circle-img{
+    width: 70%;
+    display: block;
+    margin: 0px auto;
+}
+/*PUREFLOW CABIN FILTERS PAGE RESPONSIVE CSS END*/
+}
+
+@media screen and (max-width: 412px) {
+    .round_numeric{ 
+        display: inline-block;
+        width: 14%;
+    }
+    .third_sec_first_title {
+        margin-left: 15px;
+        display: inline-block;
+        width: 78%;
+        float: right;
+    }
+    .third-section-p
+    {
+        margin-left: 76px;
+    }
+    
+    }
+    
+    
+    @media screen and (max-width: 376px) {
+    .round_numeric{ 
+        width: 16%;
+    }
+    .third_sec_first_title {
+        margin-left: 15px;
+        width: 78%;
+    }
+    .third-section-p
+    {
+        margin-left: 67px;
+    }
+    .car-image-padding
+    {
+        padding-left: 0px;
+    }
+    
+    }
+    
+    @media screen and (max-width: 321px) {
+    .round_numeric{ 
+        width: 19%;
+    }
+    .third_sec_first_title {
+        width: 75%;
+    }
+    .third-section-p
+    {
+        margin-left: 63px;
+    }
+    .left-right-margin
+    {
+        margin: 0px 0px;
+    }
+    
+    }

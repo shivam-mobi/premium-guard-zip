@@ -1,0 +1,32 @@
+stages:
+  - install
+
+install_dependencies_and_deploy:
+  stage: install
+  script:
+    ##- echo "Creating .env file from GitLab environment variable"
+    ##- echo "$ENV_STAGE" > .env
+    - which composer
+    - echo "Fixing file permissions"
+    - sudo chown -R gitlab-runner:gitlab-runner .  # Fix ownership of the vendor directory
+    - sudo find . -type f -exec chmod 644 {} \;
+    - sudo find . -type d -exec chmod 755 {} \;
+    - echo "Installing Composer dependencies"
+    - sudo composer install --prefer-dist --no-interaction --optimize-autoloader --verbose
+    - sudo php artisan optimize:clear
+    - sudo php artisan storage:link
+    - echo "Creating .env file from GitLab environment variable"
+    - sudo chown -R gitlab-runner:gitlab-runner vendor
+    - echo "Deploying to stage"
+    - sudo pwd
+
+    # Use rsync to copy all files without exclusions
+    - echo "Syncing all files to the deployment directory"
+    - sudo rsync -av ./ /var/www/api-pgfilters/
+
+    # Ensure correct ownership and permissions after rsync
+    - sudo chown -R www-data:www-data /var/www/api-pgfilters
+  tags:
+    - Pgfilter-API-staging  # Adjust to match your GitLab runner tag
+  only:
+    - stage  # Triggered on push to the 'stage' branch
