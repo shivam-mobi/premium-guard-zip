@@ -33,15 +33,15 @@ class ProductCompController extends Controller {
 
         $products["years"] = DB::connection(self::$main_db)
                                 ->table('applications')
-                                ->select(DB::raw('DISTINCT(YearID) as year'))
+                                ->selectRaw('DISTINCT(YearID) as year')
                                 ->orderBy('year','DESC')
                                 ->get();
 
         // $products["parttypes"] = DB::connection(self::$main_db)
-                                // ->select(DB::raw("SELECT CASE WHEN partTypeid = 1 THEN 'Oil Filter' WHEN partTypeid = 14 THEN 'Housing Cap' WHEN partTypeid = 10 THEN 'Drain Plug' ELSE partTypename END AS partTypename 
-                                // FROM parttype_master WHERE partTypeid IN(1,2,3,4,5,8,10,14) ORDER BY FIELD(partTypeid,1,2,3,4,5,14,10,8)"));
-                                // ->select(DB::raw("SELECT CASE WHEN PartTerminologyID = 1 THEN 'Oil Filter' WHEN PartTerminologyID = 14 THEN 'Housing Cap' WHEN PartTerminologyID = 10 THEN 'Drain Plug' ELSE partTypename END AS partTypename 
-                                // FROM parttype_master WHERE PartTerminologyID IN(1,2,3,4,5,8,10,14) ORDER BY FIELD(PartTerminologyID,1,2,3,4,5,14,10,8)"));
+                                // ->select("SELECT CASE WHEN partTypeid = 1 THEN 'Oil Filter' WHEN partTypeid = 14 THEN 'Housing Cap' WHEN partTypeid = 10 THEN 'Drain Plug' ELSE partTypename END AS partTypename 
+                                // FROM parttype_master WHERE partTypeid IN(1,2,3,4,5,8,10,14) ORDER BY FIELD(partTypeid,1,2,3,4,5,14,10,8)");
+                                // ->select("SELECT CASE WHEN PartTerminologyID = 1 THEN 'Oil Filter' WHEN PartTerminologyID = 14 THEN 'Housing Cap' WHEN PartTerminologyID = 10 THEN 'Drain Plug' ELSE partTypename END AS partTypename 
+                                // FROM parttype_master WHERE PartTerminologyID IN(1,2,3,4,5,8,10,14) ORDER BY FIELD(PartTerminologyID,1,2,3,4,5,14,10,8)");
 
         $partTypeNames = [
             "Oil Filter",
@@ -117,7 +117,7 @@ class ProductCompController extends Controller {
         if($product_type!='') {
             //product details
             $products_result = DB::connection(self::$main_db)
-                    // ->select(DB::raw("SELECT p.partnumber,a.YearID AS year,TRIM(ma.MakeName) AS make,TRIM(mo.ModelName) AS model,p.partType FROM applications a 
+                    // ->select("SELECT p.partnumber,a.YearID AS year,TRIM(ma.MakeName) AS make,TRIM(mo.ModelName) AS model,p.partType FROM applications a 
                     // JOIN $this->pg_secdb.make ma ON a.MakeID = ma.MakeID 
                     // JOIN $this->pg_secdb.model mo ON a.ModelID = mo.ModelID 
                     // JOIN partNumberInfo p ON a.partnumber=p.partNumber 
@@ -125,9 +125,9 @@ class ProductCompController extends Controller {
                     // and p.partnumber not like 'MG%' and p.partnumber NOT IN('NRC','NSC','NRA','NSA','NRO','NSO','NRF','NSF','NRT','NST','TBA','NR') 
                     // GROUP BY a.partnumber 
                     // ORDER BY (SELECT count(DISTINCT ms.PAName) as c FROM part_attributes_mapper mp join part_attributes_master ms on mp.PAID=ms.PAID WHERE mp.partNumber=p.partnumber  GROUP BY mp.partNumber) DESC,
-                    // CAST(digits(a.partnumber) as UNSIGNED) DESC"));
+                    // CAST(digits(a.partnumber) as UNSIGNED) DESC");
 
-                    ->select(DB::raw("SELECT p.partNumber as partnumber,a.YearID AS year,TRIM(ma.MakeName) AS make,TRIM(mo.ModelName) AS model,p.PartTerminologyID as partType FROM applications a 
+                    ->select("SELECT p.partNumber as partnumber,a.YearID AS year,TRIM(ma.MakeName) AS make,TRIM(mo.ModelName) AS model,p.PartTerminologyID as partType FROM applications a 
                     JOIN $this->pg_secdb.make ma ON a.MakeID = ma.MakeID 
                     JOIN $this->pg_secdb.model mo ON a.ModelID = mo.ModelID 
                     JOIN partNumberInfo p ON a.part_id=p.part_id 
@@ -135,7 +135,7 @@ class ProductCompController extends Controller {
                     and p.partNumber not like 'MG%' and p.partNumber NOT IN('NRC','NSC','NRA','NSA','NRO','NSO','NRF','NSF','NRT','NST','TBA','NR') 
                     GROUP BY p.partNumber 
                     ORDER BY (SELECT count(DISTINCT ms.PAName) as c FROM part_attributes_mapper mp join part_attributes_master ms on mp.PAID=ms.PAID WHERE mp.part_id=p.part_id  GROUP BY p.partNumber) DESC,
-                    CAST(digits(p.partNumber) as UNSIGNED) DESC"));
+                    CAST(digits(p.partNumber) as UNSIGNED) DESC");
             
             foreach ($products_result as $products_result1) {
 
@@ -154,7 +154,7 @@ class ProductCompController extends Controller {
                    
                     //image filename query
                     $productImg = DB::connection(self::$main_db)
-                                // ->select(DB::raw("SELECT fileName from image_mapper WHERE partNumber='$part' 
+                                // ->select("SELECT fileName from image_mapper WHERE partNumber='$part' 
                                 //     ORDER BY CASE 
                                 //     WHEN fileName LIKE '%ZZ2_FRO.%' then 1 WHEN fileName LIKE '%P02_.%' then 2
                                 //     WHEN fileName LIKE '%P04_FRO.%' then 3 WHEN fileName LIKE '%P01_BAC.%' then 4
@@ -166,8 +166,8 @@ class ProductCompController extends Controller {
                                 //     WHEN fileName LIKE '%-C.%' then 15 WHEN fileName LIKE '%-D.%' then 16
                                 //     WHEN fileName LIKE '%-G.%' then 17 WHEN fileName LIKE '%-H.%' then 18
                                 //     WHEN fileName LIKE '%-K.%' then 19 WHEN fileName LIKE '%-I.%' then 20
-                                //     ELSE 21 END LIMIT 1"));
-                                ->select(DB::raw("SELECT fileName from image_mapper im
+                                //     ELSE 21 END LIMIT 1");
+                                ->select("SELECT fileName from image_mapper im
                                     JOIN partNumberInfo p ON im.part_id=p.part_id
                                     WHERE p.partNumber='$part' 
                                     ORDER BY CASE 
@@ -181,7 +181,7 @@ class ProductCompController extends Controller {
                                     WHEN fileName LIKE '%-C.%' then 15 WHEN fileName LIKE '%-D.%' then 16
                                     WHEN fileName LIKE '%-G.%' then 17 WHEN fileName LIKE '%-H.%' then 18
                                     WHEN fileName LIKE '%-K.%' then 19 WHEN fileName LIKE '%-I.%' then 20
-                                    ELSE 21 END LIMIT 1"));
+                                    ELSE 21 END LIMIT 1");
 
 
                     // if(count($productImg) > 0) {
@@ -236,12 +236,12 @@ class ProductCompController extends Controller {
 
                     //product specification query
                     $product_specs = DB::connection(self::$main_db)
-                                    // ->select(DB::raw("SELECT ms.PAName,mp.value,ms.PAID FROM part_attributes_mapper mp 
-                                    // JOIN part_attributes_master ms ON mp.PAID=ms.PAID WHERE partNumber='$part'  group by ms.PAName order by FIELD(ms.PAName,'Shape','Gasket Material','Anti-Drain Back Valve','Thread Size','Bypass Relief Valve','Burst Pressure','Micron Rating','Gasket Thickness','Gasket Outside Diameter','Gasket Inside Diameter','Outside Diameter','Height','Width','Length','Side C Length','Side B Length','Side A Length')DESC"));
-                                    ->select(DB::raw("SELECT ms.PAName,mp.value,ms.PAID FROM part_attributes_mapper mp 
+                                    // ->select("SELECT ms.PAName,mp.value,ms.PAID FROM part_attributes_mapper mp 
+                                    // JOIN part_attributes_master ms ON mp.PAID=ms.PAID WHERE partNumber='$part'  group by ms.PAName order by FIELD(ms.PAName,'Shape','Gasket Material','Anti-Drain Back Valve','Thread Size','Bypass Relief Valve','Burst Pressure','Micron Rating','Gasket Thickness','Gasket Outside Diameter','Gasket Inside Diameter','Outside Diameter','Height','Width','Length','Side C Length','Side B Length','Side A Length')DESC");
+                                    ->select("SELECT ms.PAName,mp.value,ms.PAID FROM part_attributes_mapper mp 
                                     JOIN part_attributes_master ms ON mp.PAID=ms.PAID
                                     JOIN partNumberInfo p ON mp.part_id=p.part_id
-                                    WHERE p.partNumber='$part'  group by ms.PAName order by FIELD(ms.PAName,'Shape','Gasket Material','Anti-Drain Back Valve','Thread Size','Bypass Relief Valve','Burst Pressure','Micron Rating','Gasket Thickness','Gasket Outside Diameter','Gasket Inside Diameter','Outside Diameter','Height','Width','Length','Side C Length','Side B Length','Side A Length') DESC"));
+                                    WHERE p.partNumber='$part'  group by ms.PAName order by FIELD(ms.PAName,'Shape','Gasket Material','Anti-Drain Back Valve','Thread Size','Bypass Relief Valve','Burst Pressure','Micron Rating','Gasket Thickness','Gasket Outside Diameter','Gasket Inside Diameter','Outside Diameter','Height','Width','Length','Side C Length','Side B Length','Side A Length') DESC");
 
                     if(!empty($product_specs)) {
 
@@ -410,42 +410,42 @@ class ProductCompController extends Controller {
 
             $products = [];
             $products['make'] = DB::connection(self::$main_db)
-                                // ->select(DB::raw("SELECT DISTINCT ma.MakeID,ma.MakeName 
+                                // ->select("SELECT DISTINCT ma.MakeID,ma.MakeName 
                                 // FROM applications a JOIN partNumberInfo p  ON a.partnumber = p.partNumber  
                                 // JOIN $this->pg_secdb.make ma ON a.MakeID=ma.MakeID WHERE p.partType IN (".implode(",",$partTypeCodeArray[$product_type]).") $years_between  
-                                // ORDER BY ma.MakeName asc"));
-                                ->select(DB::raw("SELECT DISTINCT ma.MakeID,ma.MakeName 
+                                // ORDER BY ma.MakeName asc");
+                                ->select("SELECT DISTINCT ma.MakeID,ma.MakeName 
                                 FROM applications a JOIN partNumberInfo p  ON a.part_id = p.part_id  
                                 JOIN $this->pg_secdb.make ma ON a.MakeID=ma.MakeID WHERE p.PartTerminologyID IN (".implode(",",$partTypeCodeArray[$product_type]).") $years_between  
-                                ORDER BY ma.MakeName asc"));
+                                ORDER BY ma.MakeName asc");
 
             $products["model"] = DB::connection(self::$main_db)
-                                // ->select(DB::raw("SELECT DISTINCT m.ModelID,m.ModelName 
+                                // ->select("SELECT DISTINCT m.ModelID,m.ModelName 
                                 // FROM applications a JOIN partNumberInfo p  ON a.partnumber = p.partNumber  
                                 // JOIN $this->pg_secdb.model m ON a.ModelID=m.ModelID  WHERE  p.partType IN (".implode(",",$partTypeCodeArray[$product_type]).") $years_between $hidden_makes  
-                                // ORDER BY m.ModelName asc"));
-                                ->select(DB::raw("SELECT DISTINCT m.ModelID,m.ModelName 
+                                // ORDER BY m.ModelName asc");
+                                ->select("SELECT DISTINCT m.ModelID,m.ModelName 
                                 FROM applications a JOIN partNumberInfo p  ON a.part_id = p.part_id  
                                 JOIN $this->pg_secdb.model m ON a.ModelID=m.ModelID  WHERE  p.PartTerminologyID IN (".implode(",",$partTypeCodeArray[$product_type]).") $years_between $hidden_makes  
-                                ORDER BY m.ModelName asc"));
+                                ORDER BY m.ModelName asc");
 
             $products["partnumber"] = DB::connection(self::$main_db)
-                                // ->select(DB::raw("SELECT p.partnumber FROM applications a 
+                                // ->select("SELECT p.partnumber FROM applications a 
                                 // JOIN  $this->pg_secdb.make ma ON a.MakeID = ma.MakeID 
                                 // JOIN  $this->pg_secdb.model mo ON a.ModelID = mo.ModelID 
                                 // JOIN partNumberInfo p ON a.partnumber=p.partNumber 
                                 // WHERE p.partType IN (".implode(",",$partTypeCodeArray[$product_type]).") $years_between $hidden_makes $hidden_models  
                                 // AND p.partnumber not like 'MG%' and p.partnumber NOT IN('NRC','NSC','NRA','NSA','NRO','NSO','NRF','NSF','NRT','NST','TBA','NR') 
                                 // GROUP BY a.partnumber 
-                                // ORDER by CAST(digits(a.partnumber) as UNSIGNED) DESC"));
-                                ->select(DB::raw("SELECT p.partNumber as partnumber FROM applications a 
+                                // ORDER by CAST(digits(a.partnumber) as UNSIGNED) DESC");
+                                ->select("SELECT p.partNumber as partnumber FROM applications a 
                                 JOIN  $this->pg_secdb.make ma ON a.MakeID = ma.MakeID 
                                 JOIN  $this->pg_secdb.model mo ON a.ModelID = mo.ModelID 
                                 JOIN partNumberInfo p ON a.part_id=p.part_id 
                                 WHERE p.PartTerminologyID IN (".implode(",",$partTypeCodeArray[$product_type]).") $years_between $hidden_makes $hidden_models  
                                 AND p.partNumber not like 'MG%' and p.partNumber NOT IN('NRC','NSC','NRA','NSA','NRO','NSO','NRF','NSF','NRT','NST','TBA','NR') 
                                 GROUP BY p.partNumber 
-                                ORDER by CAST(digits(p.partNumber) as UNSIGNED) DESC"));
+                                ORDER by CAST(digits(p.partNumber) as UNSIGNED) DESC");
             return $products;
             
         }

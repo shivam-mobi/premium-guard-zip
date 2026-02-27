@@ -35,7 +35,7 @@ class StatisticsController extends Controller
             }
             
             $cnt=DB::connection(self::$main_db)
-                    ->select(DB::raw("SELECT id,".$col_name." FROM lookups_statistics_app where app_year='$curentYear' and app_month='$curentMonth'"));
+                    ->select("SELECT id,".$col_name." FROM lookups_statistics_app where app_year='$curentYear' and app_month='$curentMonth'");
 
             if(empty($cnt)) {
                 DB::connection(self::$main_db)
@@ -67,7 +67,7 @@ class StatisticsController extends Controller
 
 
             $cnt=DB::connection(self::$main_db)
-                    ->select(DB::raw("SELECT id FROM $col_name WHERE app_year='$curentYear' AND app_month='$curentMonth' AND label='$top25label'"));
+                    ->select("SELECT id FROM $col_name WHERE app_year='$curentYear' AND app_month='$curentMonth' AND label='$top25label'");
 
             Log::info($cnt);
             if(empty($cnt)) {

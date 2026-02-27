@@ -31,4 +31,6 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'api_key' => env('MOBILE_APP_API_KEY'),
+
 ];

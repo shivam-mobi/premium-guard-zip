@@ -123,7 +123,7 @@ class QualifierController extends Controller
 
 
         $fluids_from_query=[];
-        $fluids_parttype1= DB::connection(self::$main_db)->select(DB::raw("SELECT partTypeid FROM `fluids_parttype_master`"));
+        $fluids_parttype1= DB::connection(self::$main_db)->select("SELECT partTypeid FROM `fluids_parttype_master`");
                 
         foreach($fluids_parttype1 as $fluids_parttype_d) {
             array_push($fluids_from_query,$fluids_parttype_d->partTypeid);
@@ -459,23 +459,23 @@ class QualifierController extends Controller
         if(in_array("11",$explode_part) || in_array("15",$explode_part) || in_array("17",$explode_part)) {
 
             if($save_fluis_pt_string!="" && $save_normal_pt_string!="") { // both need more info clicked (for fluids and caps/wiper/filters) 
-                // $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a JOIN applications3 af ON a.BaseVehicleID=af.BaseVehicleID AND a.EngineBaseID=af.EngineBaseID JOIN partNumberInfo pi ON a.partnumber=pi.partNumber  
-                //             WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND (pi.partType IN(1,2,3,7,12,13,16".','.$save_normal_pt_string.") OR a.partSubtype IN(1,2,3,4)) AND af.partTypeid IN (".$save_fluis_pt_string.")"));
-                $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a JOIN applications3 af ON a.BaseVehicleID=af.BaseVehicleID AND a.EngineBaseID=af.EngineBaseID JOIN partNumberInfo pi ON a.part_id=pi.part_id  
-                            WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND pi.PartTerminologyID IN(5340,6192,6832".','.$save_normal_pt_string.") AND af.partTypeid IN (".$save_fluis_pt_string.")"));
+                // $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a JOIN applications3 af ON a.BaseVehicleID=af.BaseVehicleID AND a.EngineBaseID=af.EngineBaseID JOIN partNumberInfo pi ON a.partnumber=pi.partNumber  
+                //             WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND (pi.partType IN(1,2,3,7,12,13,16".','.$save_normal_pt_string.") OR a.partSubtype IN(1,2,3,4)) AND af.partTypeid IN (".$save_fluis_pt_string.")");
+                $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a JOIN applications3 af ON a.BaseVehicleID=af.BaseVehicleID AND a.EngineBaseID=af.EngineBaseID JOIN partNumberInfo pi ON a.part_id=pi.part_id  
+                            WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND pi.PartTerminologyID IN(5340,6192,6832".','.$save_normal_pt_string.") AND af.partTypeid IN (".$save_fluis_pt_string.")");
 
             }
             elseif($save_fluis_pt_string!="" && $save_normal_pt_string=="") { // only first fluids need more info clicked
-                // $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a JOIN applications3 af ON a.BaseVehicleID=af.BaseVehicleID AND a.EngineBaseID=af.EngineBaseID JOIN partNumberInfo pi ON a.partnumber=pi.partNumber  
-                // WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND (pi.partType IN(1,2,3,7,12,13,16) OR a.partSubtype IN(1,2,3,4)) AND af.partTypeid IN (".$save_fluis_pt_string.")"));
-                $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a JOIN applications3 af ON a.BaseVehicleID=af.BaseVehicleID AND a.EngineBaseID=af.EngineBaseID JOIN partNumberInfo pi ON a.part_id=pi.part_id  
-                WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND pi.PartTerminologyID IN(5340,6192,6832) AND af.partTypeid IN (".$save_fluis_pt_string.")"));
+                // $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a JOIN applications3 af ON a.BaseVehicleID=af.BaseVehicleID AND a.EngineBaseID=af.EngineBaseID JOIN partNumberInfo pi ON a.partnumber=pi.partNumber  
+                // WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND (pi.partType IN(1,2,3,7,12,13,16) OR a.partSubtype IN(1,2,3,4)) AND af.partTypeid IN (".$save_fluis_pt_string.")");
+                $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a JOIN applications3 af ON a.BaseVehicleID=af.BaseVehicleID AND a.EngineBaseID=af.EngineBaseID JOIN partNumberInfo pi ON a.part_id=pi.part_id  
+                WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND pi.PartTerminologyID IN(5340,6192,6832) AND af.partTypeid IN (".$save_fluis_pt_string.")");
             }
             else { // only first caps/wiper/filters need more info clicked
-                // $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a  JOIN partNumberInfo pi ON a.partnumber=pi.partNumber  
-                // WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND (pi.partType IN(1,2,3,7,12,13,16".','.$save_normal_pt_string.") OR a.partSubtype IN(1,2,3,4))"));
-                $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a  JOIN partNumberInfo pi ON a.part_id=pi.part_id  
-                WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND pi.PartTerminologyID IN(5340,6192,6832".','.$save_normal_pt_string.")"));
+                // $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a  JOIN partNumberInfo pi ON a.partnumber=pi.partNumber  
+                // WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND (pi.partType IN(1,2,3,7,12,13,16".','.$save_normal_pt_string.") OR a.partSubtype IN(1,2,3,4))");
+                $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a  JOIN partNumberInfo pi ON a.part_id=pi.part_id  
+                WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND pi.PartTerminologyID IN(5340,6192,6832".','.$save_normal_pt_string.")");
             }
         }
         else {
@@ -484,28 +484,28 @@ class QualifierController extends Controller
         
                 if($save_fluis_pt_string!="" && $save_normal_pt_string!="" ) { // both need more info clicked (for fluids and caps/wiper/filters)
 
-                    // $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.partnumber=pi.partNumber join parttype_master pm on pi.partType=pm.partTypeid JOIN applications3 af ON a.BaseVehicleID=af.BaseVehicleID AND a.EngineBaseID=af.EngineBaseID 
-                    // WHERE af.BaseVehicleID=$baseVehicleId AND af.EngineBaseID IN($engineId) AND af.partTypeid IN (".$save_fluis_pt_string.") AND pm.partTypeid IN (1,2,3,7,12,13,16".','.$save_normal_pt_string.")"));
-                    $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.part_id=pi.part_id join parttype_master pm on pi.PartTerminologyID=pm.PartTerminologyID JOIN applications3 af ON a.BaseVehicleID=af.BaseVehicleID AND a.EngineBaseID=af.EngineBaseID 
-                    WHERE af.BaseVehicleID=$baseVehicleId AND af.EngineBaseID IN($engineId) AND af.partTypeid IN (".$save_fluis_pt_string.") AND pm.PartTerminologyID IN (5340,6192,6832".','.$save_normal_pt_string.")"));
+                    // $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.partnumber=pi.partNumber join parttype_master pm on pi.partType=pm.partTypeid JOIN applications3 af ON a.BaseVehicleID=af.BaseVehicleID AND a.EngineBaseID=af.EngineBaseID 
+                    // WHERE af.BaseVehicleID=$baseVehicleId AND af.EngineBaseID IN($engineId) AND af.partTypeid IN (".$save_fluis_pt_string.") AND pm.partTypeid IN (1,2,3,7,12,13,16".','.$save_normal_pt_string.")");
+                    $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.part_id=pi.part_id join parttype_master pm on pi.PartTerminologyID=pm.PartTerminologyID JOIN applications3 af ON a.BaseVehicleID=af.BaseVehicleID AND a.EngineBaseID=af.EngineBaseID 
+                    WHERE af.BaseVehicleID=$baseVehicleId AND af.EngineBaseID IN($engineId) AND af.partTypeid IN (".$save_fluis_pt_string.") AND pm.PartTerminologyID IN (5340,6192,6832".','.$save_normal_pt_string.")");
                 }
                 elseif($save_fluis_pt_string!="" && $save_normal_pt_string=="") {
-                    // $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.partnumber=pi.partNumber join parttype_master pm on pi.partType=pm.partTypeid JOIN applications3 af ON a.BaseVehicleID=af.BaseVehicleID AND a.EngineBaseID=af.EngineBaseID 
-                    // WHERE af.BaseVehicleID=$baseVehicleId AND af.EngineBaseID IN($engineId) AND af.partTypeid IN (".$save_fluis_pt_string.") AND pm.partTypeid IN (1,2,3,7,12,13,16)"));
-                    $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.part_id=pi.part_id join parttype_master pm on pi.PartTerminologyID=pm.PartTerminologyID JOIN applications3 af ON a.BaseVehicleID=af.BaseVehicleID AND a.EngineBaseID=af.EngineBaseID 
-                    WHERE af.BaseVehicleID=$baseVehicleId AND af.EngineBaseID IN($engineId) AND af.partTypeid IN (".$save_fluis_pt_string.") AND pm.PartTerminologyID IN (5340,6192,6832)"));
+                    // $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.partnumber=pi.partNumber join parttype_master pm on pi.partType=pm.partTypeid JOIN applications3 af ON a.BaseVehicleID=af.BaseVehicleID AND a.EngineBaseID=af.EngineBaseID 
+                    // WHERE af.BaseVehicleID=$baseVehicleId AND af.EngineBaseID IN($engineId) AND af.partTypeid IN (".$save_fluis_pt_string.") AND pm.partTypeid IN (1,2,3,7,12,13,16)");
+                    $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.part_id=pi.part_id join parttype_master pm on pi.PartTerminologyID=pm.PartTerminologyID JOIN applications3 af ON a.BaseVehicleID=af.BaseVehicleID AND a.EngineBaseID=af.EngineBaseID 
+                    WHERE af.BaseVehicleID=$baseVehicleId AND af.EngineBaseID IN($engineId) AND af.partTypeid IN (".$save_fluis_pt_string.") AND pm.PartTerminologyID IN (5340,6192,6832)");
                 }
                 else { // only first caps/wiper/filters need more info clicked
-                    // $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.partnumber=pi.partNumber join parttype_master pm on pi.partType=pm.partTypeid  
-                    // WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND  pm.partTypeid IN (1,2,3,7,12,13,16".','.$save_normal_pt_string.")"));
-                    $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.part_id=pi.part_id join parttype_master pm on pi.PartTerminologyID=pm.PartTerminologyID  
-                    WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND  pm.PartTerminologyID IN (5340,6192,6832".','.$save_normal_pt_string.")"));
+                    // $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.partnumber=pi.partNumber join parttype_master pm on pi.partType=pm.partTypeid  
+                    // WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND  pm.partTypeid IN (1,2,3,7,12,13,16".','.$save_normal_pt_string.")");
+                    $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.part_id=pi.part_id join parttype_master pm on pi.PartTerminologyID=pm.PartTerminologyID  
+                    WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND  pm.PartTerminologyID IN (5340,6192,6832".','.$save_normal_pt_string.")");
                 }
         
             }
             else  {
-                // $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.partnumber=pi.partNumber join parttype_master pm on pi.partType=pm.partTypeid  WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND  pm.partTypeid IN (1,2,3,7,12,13,16)"));
-                $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.part_id=pi.part_id join parttype_master pm on pi.PartTerminologyID=pm.PartTerminologyID  WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND  pm.PartTerminologyID IN (5340,6192,6832)"));   
+                // $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.partnumber=pi.partNumber join parttype_master pm on pi.partType=pm.partTypeid  WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND  pm.partTypeid IN (1,2,3,7,12,13,16)");
+                $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.part_id=pi.part_id join parttype_master pm on pi.PartTerminologyID=pm.PartTerminologyID  WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND  pm.PartTerminologyID IN (5340,6192,6832)");   
             }
         }
 
@@ -573,7 +573,7 @@ class QualifierController extends Controller
                     $vcdb_qualifiers_select = $vcdb_qualifiers_select . ' ' . $vcdb_table_joins[$table];
                 }
 
-                $vcdb_qualifiers_select= DB::connection(self::$aces_vcdb)->select(DB::raw($vcdb_qualifiers_select . ' WHERE vehicle.BaseVehicleID ='.$baseVehicleId.'  AND engineconfig.EngineBaseID IN('.$engineId.')'.$qualifierlist));
+                $vcdb_qualifiers_select= DB::connection(self::$aces_vcdb)->select($vcdb_qualifiers_select . ' WHERE vehicle.BaseVehicleID ='.$baseVehicleId.'  AND engineconfig.EngineBaseID IN('.$engineId.')'.$qualifierlist);
                   
             }
 
@@ -1015,7 +1015,7 @@ class QualifierController extends Controller
         EOT;
      
         
-        $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.part_id=pi.part_id WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND a.MfrLabel LIKE '%pureflow%'"));
+        $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.part_id=pi.part_id WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND a.MfrLabel LIKE '%pureflow%'");
 
         $a=$results[0];
         $get_data_json=$a->data_json;
@@ -1081,7 +1081,7 @@ class QualifierController extends Controller
                     $vcdb_qualifiers_select = $vcdb_qualifiers_select . ' ' . $vcdb_table_joins[$table];
                 }
 
-                $vcdb_qualifiers_select= DB::connection(self::$aces_vcdb)->select(DB::raw($vcdb_qualifiers_select . ' WHERE vehicle.BaseVehicleID ='.$baseVehicleId.'  AND engineconfig.EngineBaseID IN('.$engineId.')'.$qualifierlist));
+                $vcdb_qualifiers_select= DB::connection(self::$aces_vcdb)->select($vcdb_qualifiers_select . ' WHERE vehicle.BaseVehicleID ='.$baseVehicleId.'  AND engineconfig.EngineBaseID IN('.$engineId.')'.$qualifierlist);
                   
             }
             
@@ -1128,10 +1128,10 @@ class QualifierController extends Controller
                                     $qualifierlist = " and (a.".$qualifier_type."=".$qualifier_id." OR a.".$qualifier_type." IS NULL)";
                                     
                                     $partTypeArray = DB::connection(self::$main_db)
-                                        ->select(DB::raw("SELECT p.partNumber 
+                                        ->select("SELECT p.partNumber 
                                         FROM partNumberInfo p LEFT JOIN applications a ON p.part_id=a.part_id 
                                         WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId)".$qualifierlist." AND a.MfrLabel LIKE '%pureflow%' 
-                                        GROUP BY p.partNumber"));
+                                        GROUP BY p.partNumber");
 
 
                                     $final_result = collect($partTypeArray)->pluck('partNumber')->toArray();
@@ -1566,7 +1566,7 @@ class QualifierController extends Controller
         EOT;
      
         
-        $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.part_id=pi.part_id WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND a.MfrLabel LIKE '%pureflow%'"));
+        $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.part_id=pi.part_id WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND a.MfrLabel LIKE '%pureflow%'");
 
         $a=$results[0];
         $get_data_json=$a->data_json;
@@ -1630,7 +1630,7 @@ class QualifierController extends Controller
                     $vcdb_qualifiers_select = $vcdb_qualifiers_select . ' ' . $vcdb_table_joins[$table];
                 }
 
-                $vcdb_qualifiers_select= DB::connection(self::$aces_vcdb)->select(DB::raw($vcdb_qualifiers_select . ' WHERE vehicle.BaseVehicleID ='.$baseVehicleId.'  AND engineconfig.EngineBaseID IN('.$engineId.')'.$qualifierlist));
+                $vcdb_qualifiers_select= DB::connection(self::$aces_vcdb)->select($vcdb_qualifiers_select . ' WHERE vehicle.BaseVehicleID ='.$baseVehicleId.'  AND engineconfig.EngineBaseID IN('.$engineId.')'.$qualifierlist);
                   
             }
             
@@ -1690,10 +1690,10 @@ class QualifierController extends Controller
                                     $qualifierlist = " and (a.".$qualifier_type."=".$qualifier_id." OR a.".$qualifier_type." IS NULL)";
                                     
                                     $partTypeArray = DB::connection(self::$main_db)
-                                        ->select(DB::raw("SELECT p.partNumber 
+                                        ->select("SELECT p.partNumber 
                                         FROM partNumberInfo p LEFT JOIN applications a ON p.part_id=a.part_id 
                                         WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId)".$qualifierlist." AND a.MfrLabel LIKE '%pureflow%' 
-                                        GROUP BY p.partNumber"));
+                                        GROUP BY p.partNumber");
 
                                     
                                     $final_result = collect($partTypeArray)->pluck('partNumber')->toArray();
@@ -2142,11 +2142,11 @@ class QualifierController extends Controller
                 $send_parttype = "pi.PartTerminologyID=".$explode_part[0];
             }
 
-            $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.part_id=pi.part_id WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND ($send_parttype)"));
+            $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.part_id=pi.part_id WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND ($send_parttype)");
 
         }
         else {
-            $results= DB::connection(self::$main_db)->select(DB::raw($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.part_id=pi.part_id WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId)"));
+            $results= DB::connection(self::$main_db)->select($data_qualifiers_select ." FROM applications a JOIN partNumberInfo pi ON a.part_id=pi.part_id WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId)");
         }
 
         $a=$results[0];
@@ -2211,7 +2211,7 @@ class QualifierController extends Controller
                     $vcdb_qualifiers_select = $vcdb_qualifiers_select . ' ' . $vcdb_table_joins[$table];
                 }
 
-                $vcdb_qualifiers_select= DB::connection(self::$aces_vcdb)->select(DB::raw($vcdb_qualifiers_select . ' WHERE vehicle.BaseVehicleID ='.$baseVehicleId.'  AND engineconfig.EngineBaseID IN('.$engineId.')'.$qualifierlist));
+                $vcdb_qualifiers_select= DB::connection(self::$aces_vcdb)->select($vcdb_qualifiers_select . ' WHERE vehicle.BaseVehicleID ='.$baseVehicleId.'  AND engineconfig.EngineBaseID IN('.$engineId.')'.$qualifierlist);
                   
             }
             
@@ -2271,10 +2271,10 @@ class QualifierController extends Controller
                                 $qualifierlist = " and (a.".$qualifier_type."=".$qualifier_id." OR a.".$qualifier_type." IS NULL)";
                                 
                                 $partTypeArray = DB::connection(self::$main_db)
-                                    ->select(DB::raw("SELECT p.partNumber 
+                                    ->select("SELECT p.partNumber 
                                     FROM partNumberInfo p LEFT JOIN applications a ON p.part_id=a.part_id 
                                     WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId)".$qualifierlist." 
-                                    GROUP BY p.partNumber"));
+                                    GROUP BY p.partNumber");
 
 
                                 if(count($partTypeArray) > 0) {

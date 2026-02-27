@@ -63,7 +63,7 @@ class ClassicSearchController extends Controller
 
             // Combine both queries using UNION
             $results = DB::connection(self::$aces_vcdb)
-                ->select(DB::raw("(SELECT make.MakeID AS MakeID, make.MakeName AS make
+                ->select("(SELECT make.MakeID AS MakeID, make.MakeName AS make
                 FROM basevehicle
                 JOIN make ON basevehicle.MakeID = make.MakeID 
                 JOIN model ON basevehicle.ModelID = model.ModelID 
@@ -72,14 +72,14 @@ class ClassicSearchController extends Controller
                 GROUP BY make) UNION (SELECT makeID AS MakeID, make
                 FROM $this->pg_db.applications_pureflow_seo
                 WHERE year = $yearVal
-                GROUP BY make) ORDER BY make ASC"));
+                GROUP BY make) ORDER BY make ASC");
 
             
         } elseif ($projectname == 'highflow' && ($yearVal==$next_year || $yearVal==$this->current_year)) {
 
            // Combine both queries using UNION
            $results = DB::connection(self::$aces_vcdb)
-                ->select(DB::raw("(SELECT make.MakeID AS MakeID, make.MakeName AS make
+                ->select("(SELECT make.MakeID AS MakeID, make.MakeName AS make
                 FROM basevehicle
                 JOIN make ON basevehicle.MakeID = make.MakeID 
                 JOIN model ON basevehicle.ModelID = model.ModelID 
@@ -88,7 +88,7 @@ class ClassicSearchController extends Controller
                 GROUP BY make) UNION (SELECT makeID AS MakeID, make
                 FROM $this->pg_db.applications_highflow_seo
                 WHERE year = $yearVal
-                GROUP BY make) ORDER BY make ASC"));
+                GROUP BY make) ORDER BY make ASC");
 
         }
         else {
@@ -120,7 +120,7 @@ class ClassicSearchController extends Controller
 
             // Combine both queries using UNION
             $results = DB::connection(self::$aces_vcdb)
-                ->select(DB::raw("(SELECT model.ModelName AS model, basevehicle.BaseVehicleID
+                ->select("(SELECT model.ModelName AS model, basevehicle.BaseVehicleID
                     FROM basevehicle 
                     JOIN model ON basevehicle.ModelID = model.ModelID 
                     JOIN vehicletype ON model.VehicleTypeID = vehicletype.VehicleTypeID
@@ -128,14 +128,14 @@ class ClassicSearchController extends Controller
                     AND basevehicle.MakeID = $makeVal GROUP BY model) 
                     UNION (SELECT model, BaseVehicleID 
                     FROM $this->pg_db.applications_pureflow_seo WHERE year = $yearVal AND makeID = $makeVal 
-                    GROUP BY model)  ORDER BY model ASC"));
+                    GROUP BY model)  ORDER BY model ASC");
                 
             
         } elseif ($projectname == 'highflow' && ($yearVal==$next_year || $yearVal==$this->current_year)) {
 
            // Combine both queries using UNION
            $results = DB::connection(self::$aces_vcdb)
-                ->select(DB::raw("(SELECT model.ModelName AS model, basevehicle.BaseVehicleID
+                ->select("(SELECT model.ModelName AS model, basevehicle.BaseVehicleID
                 FROM basevehicle 
                 JOIN model ON basevehicle.ModelID = model.ModelID 
                 JOIN vehicletype ON model.VehicleTypeID = vehicletype.VehicleTypeID
@@ -143,7 +143,7 @@ class ClassicSearchController extends Controller
                 AND basevehicle.MakeID = $makeVal GROUP BY model) 
                 UNION (SELECT model, BaseVehicleID 
                 FROM $this->pg_db.applications_highflow_seo WHERE year = $yearVal AND makeID = $makeVal 
-                GROUP BY model)  ORDER BY model ASC"));
+                GROUP BY model)  ORDER BY model ASC");
         }
         else {
 
@@ -170,14 +170,14 @@ class ClassicSearchController extends Controller
 
         //send EngineBaseID as EngineConfigID(as EngineConfigID label used in frontend)
         $enginetermcheck = DB::connection(self::$aces_vcdb)
-            ->select(DB::raw("SELECT GROUP_CONCAT(DISTINCT eb.EngineBaseID) as EngineConfigID,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L')) AS engine 
+            ->select("SELECT GROUP_CONCAT(DISTINCT eb.EngineBaseID) as EngineConfigID,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L')) AS engine 
                             FROM basevehicle bv JOIN vehicle v ON bv.BaseVehicleID = v.BaseVehicleID 
                             JOIN vehicletoengineconfig vtec ON v.VehicleID = vtec.VehicleID 
                             JOIN engineconfig ec ON vtec.EngineConfigID = ec.EngineConfigID 
                             JOIN enginebase eb ON ec.EngineBaseID = eb.EngineBaseID
                             LEFT JOIN $this->pg_db.fueltype_web_display_mappings ft ON ec.FuelTypeID = ft.FuelTypeID 
                             WHERE bv.BaseVehicleID = $baseVehicleId 
-                            GROUP BY engine ORDER BY engine"));
+                            GROUP BY engine ORDER BY engine");
 
 
         if ($enginetermcheck != null) {
@@ -201,14 +201,14 @@ class ClassicSearchController extends Controller
 
         //send EngineBaseID as EngineConfigID(as EngineConfigID label used in frontend)
         $enginetermcheck = DB::connection(self::$aces_vcdb)
-            ->select(DB::raw("SELECT GROUP_CONCAT(DISTINCT eb.EngineBaseID) as EngineConfigID,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L')) AS engine 
+            ->select("SELECT GROUP_CONCAT(DISTINCT eb.EngineBaseID) as EngineConfigID,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L')) AS engine 
                             FROM basevehicle bv JOIN vehicle v ON bv.BaseVehicleID = v.BaseVehicleID 
                             JOIN vehicletoengineconfig vtec ON v.VehicleID = vtec.VehicleID 
                             JOIN engineconfig ec ON vtec.EngineConfigID = ec.EngineConfigID 
                             JOIN enginebase eb ON ec.EngineBaseID = eb.EngineBaseID
                             LEFT JOIN $this->pg_db.fueltype_web_display_mappings ft ON ec.FuelTypeID = ft.FuelTypeID 
                             WHERE bv.BaseVehicleID = $baseVehicleId 
-                            GROUP BY engine ORDER BY engine"));
+                            GROUP BY engine ORDER BY engine");
 
 
         //To show dropdown -- Scenario -- If all partnumbers are same for each engine value - then do not show engine dropdown
@@ -228,10 +228,10 @@ class ClassicSearchController extends Controller
                 $engineId = $etc->EngineConfigID;
 
                 $partTypeArray = DB::connection(self::$main_db)
-                    ->select(DB::raw("SELECT p.partNumber 
+                    ->select("SELECT p.partNumber 
                     FROM partNumberInfo p LEFT JOIN applications a ON p.part_id=a.part_id 
                     WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) 
-                    GROUP BY p.partNumber"));
+                    GROUP BY p.partNumber");
 
                 $final_result = collect($partTypeArray)->pluck('partNumber')->toArray();
 
@@ -295,14 +295,14 @@ class ClassicSearchController extends Controller
 
         //send EngineBaseID as EngineConfigID(as EngineConfigID label used in frontend)
         $enginetermcheck = DB::connection(self::$aces_vcdb)
-            ->select(DB::raw("SELECT GROUP_CONCAT(DISTINCT eb.EngineBaseID) as EngineConfigID,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L')) AS engine 
+            ->select("SELECT GROUP_CONCAT(DISTINCT eb.EngineBaseID) as EngineConfigID,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L')) AS engine 
             FROM basevehicle bv JOIN vehicle v ON bv.BaseVehicleID = v.BaseVehicleID 
             JOIN vehicletoengineconfig vtec ON v.VehicleID = vtec.VehicleID 
             JOIN engineconfig ec ON vtec.EngineConfigID = ec.EngineConfigID 
             JOIN enginebase eb ON ec.EngineBaseID = eb.EngineBaseID
             LEFT JOIN $this->pg_db.fueltype_web_display_mappings ft ON ec.FuelTypeID = ft.FuelTypeID 
             WHERE bv.BaseVehicleID = $baseVehicleId 
-            GROUP BY engine ORDER BY engine"));
+            GROUP BY engine ORDER BY engine");
 
         //To show dropdown -- Scenario -- If all partnumbers are same for each engine value - then do not show engine dropdown
 
@@ -321,10 +321,10 @@ class ClassicSearchController extends Controller
                 $engineId = $etc->EngineConfigID;
 
                 $partTypeArray = DB::connection(self::$main_db)
-                    ->select(DB::raw("SELECT p.partNumber 
+                    ->select("SELECT p.partNumber 
                     FROM partNumberInfo p JOIN applications a ON p.part_id=a.part_id 
                     WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId) AND a.MfrLabel LIKE '%pureflow%' 
-                    GROUP BY p.partNumber"));
+                    GROUP BY p.partNumber");
 
 
 
@@ -419,11 +419,11 @@ class ClassicSearchController extends Controller
     public function productpage(Request $request, $partNumber)
     {
         // $product_specs=DB::connection(self::$main_db)
-        //                         ->select(DB::raw("SELECT ms.PAName,mp.value,ms.PAID 
+        //                         ->select("SELECT ms.PAName,mp.value,ms.PAID 
         //                         FROM part_attributes_mapper mp LEFT JOIN part_attributes_master ms ON ms.PAID=mp.PAID 
         //                         WHERE partNumber='$partNumber'  
         //                         GROUP BY ms.PAName 
-        //                         ORDER  BY FIELD(ms.PAName,'Shape','Gasket Material','Anti-Drain Back Valve','Thread Size','Bypass Relief Valve','Burst Pressure','Micron Rating','Gasket Thickness','Gasket Outside Diameter','Gasket Inside Diameter','Outside Diameter','Height','Width','Length','Side C Length','Side B Length','Side A Length')DESC"));
+        //                         ORDER  BY FIELD(ms.PAName,'Shape','Gasket Material','Anti-Drain Back Valve','Thread Size','Bypass Relief Valve','Burst Pressure','Micron Rating','Gasket Thickness','Gasket Outside Diameter','Gasket Inside Diameter','Outside Diameter','Height','Width','Length','Side C Length','Side B Length','Side A Length')DESC");
 
         $product_specs = DB::connection(self::$main_db)
             ->select(
@@ -566,7 +566,7 @@ class ClassicSearchController extends Controller
         $results["product_specs"] = $product_specs;
 
         $imageInfo = DB::connection(self::$main_db)
-            // ->select(DB::raw("SELECT img_id,partNumber,fileName,flag from image_mapper WHERE partNumber='$partNumber'
+            // ->select("SELECT img_id,partNumber,fileName,flag from image_mapper WHERE partNumber='$partNumber'
             //     ORDER BY CASE 
             //     WHEN fileName LIKE '%ZZ2_FRO.%' then 1 WHEN fileName LIKE '%P02_.%' then 2
             //     WHEN fileName LIKE '%P04_FRO.%' then 3 WHEN fileName LIKE '%P01_BAC.%' then 4
@@ -578,7 +578,7 @@ class ClassicSearchController extends Controller
             //     WHEN fileName LIKE '%-C.%' then 15 WHEN fileName LIKE '%-D.%' then 16
             //     WHEN fileName LIKE '%-G.%' then 17 WHEN fileName LIKE '%-H.%' then 18
             //     WHEN fileName LIKE '%-K.%' then 19 WHEN fileName LIKE '%-I.%' then 20
-            //     ELSE 21 END"));
+            //     ELSE 21 END");
             ->select(
                 DB::raw("SELECT img_id,pni.partNumber,fileName from image_mapper im
                 JOIN partNumberInfo pni ON im.part_id = pni.part_id
@@ -635,23 +635,23 @@ class ClassicSearchController extends Controller
         $results["imageInfo"] = array_values($imageInfo);
 
         $results["package"] = DB::connection(self::$main_db)
-            // ->select(DB::raw("SELECT height,width,length,weight 
-            // FROM package WHERE partNumber='$partNumber'"));
-            ->select(DB::raw("SELECT height,width,length,weight 
+            // ->select("SELECT height,width,length,weight 
+            // FROM package WHERE partNumber='$partNumber'");
+            ->select("SELECT height,width,length,weight 
                                 FROM package
                                 JOIN partNumberInfo pni ON package.part_id = pni.part_id
-                                WHERE pni.partNumber='$partNumber' GROUP BY pni.partNumber"));
+                                WHERE pni.partNumber='$partNumber' GROUP BY pni.partNumber");
 
         $results["installation_instructions"] = DB::connection(self::$main_db)
-            ->select(DB::raw("SELECT pr.resources_path FROM pgfilter_resources pr 
+            ->select("SELECT pr.resources_path FROM pgfilter_resources pr 
                 JOIN pgfilter_resources_mapper prm ON pr.id = prm.resources_mapper_id 
-                WHERE prm.resource_partnumber='$partNumber' AND pr.resource_type='4'"));
+                WHERE prm.resource_partnumber='$partNumber' AND pr.resource_type='4'");
 
         $results["product_bulletins"] = DB::connection(self::$main_db)
-            ->select(DB::raw("SELECT pr.resources_path 
+            ->select("SELECT pr.resources_path 
                 FROM pgfilter_resources pr JOIN pgfilter_resources_mapper prm ON pr.id = prm.resources_mapper_id 
                 JOIN wp_bsk_pdf_manager_pdfs bsk ON pr.resources_path=bsk.file_name
-                WHERE prm.resource_partnumber='$partNumber' AND pr.resource_type='1' AND bsk.trash='0'"));
+                WHERE prm.resource_partnumber='$partNumber' AND pr.resource_type='1' AND bsk.trash='0'");
 
         return json_encode($results);
     }
@@ -685,15 +685,15 @@ class ClassicSearchController extends Controller
     {
         //send EngineBaseID as EngineConfigID(as EngineConfigID label used in frontend)
         $results["product"] = DB::connection(self::$aces_vcdb)
-            // ->select(DB::raw("SELECT DISTINCT CAST(a.YearID AS char) as year,TRIM(ma.MakeName) AS make,a.MakeID,a.ModelID,GROUP_CONCAT(DISTINCT a.EngineBaseID) AS EngineConfigID,TRIM(mo.ModelName) AS model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'), CONCAT(NULLIF(TRIM(`eb`.`Cylinders`), '-'), 'Cyl'), NULLIF(TRIM(`eb`.`BlockType`), '-'),NULLIF(`ft`.`EngineDisplay`, '-')) AS engine,COUNT(a.id) AS numberofrec,min(a.YearID) AS minyear,max(a.YearID) AS maxyear 
+            // ->select("SELECT DISTINCT CAST(a.YearID AS char) as year,TRIM(ma.MakeName) AS make,a.MakeID,a.ModelID,GROUP_CONCAT(DISTINCT a.EngineBaseID) AS EngineConfigID,TRIM(mo.ModelName) AS model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'), CONCAT(NULLIF(TRIM(`eb`.`Cylinders`), '-'), 'Cyl'), NULLIF(TRIM(`eb`.`BlockType`), '-'),NULLIF(`ft`.`EngineDisplay`, '-')) AS engine,COUNT(a.id) AS numberofrec,min(a.YearID) AS minyear,max(a.YearID) AS maxyear 
             // FROM $this->pg_db.applications a JOIN $this->pg_secdb.make ma ON a.MakeID = ma.MakeID 
             // JOIN $this->pg_secdb.model mo ON a.ModelID = mo.ModelID 
             // JOIN $this->pg_secdb.engineconfig ec ON a.EngineConfigID = ec.EngineConfigID 
             // JOIN $this->pg_secdb.enginebase eb ON a.EngineBaseID = eb.EngineBaseID 
             // LEFT JOIN $this->pg_db.fueltype_web_display_mappings ft ON ec.FuelTypeID = ft.FuelTypeID 
             // WHERE a.partnumber='$partNumber' 
-            // GROUP BY make,model,engine ORDER BY make,model,engine"));
-            ->select(DB::raw("SELECT DISTINCT CAST(a.YearID AS char) as year,TRIM(ma.MakeName) AS make,a.MakeID,a.ModelID,GROUP_CONCAT(DISTINCT a.EngineBaseID) AS EngineConfigID,TRIM(mo.ModelName) AS model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'), CONCAT(NULLIF(TRIM(`eb`.`Cylinders`), '-'), 'Cyl'), NULLIF(TRIM(`eb`.`BlockType`), '-'),NULLIF(`ft`.`EngineDisplay`, '-')) AS engine,COUNT(a.id) AS numberofrec,min(a.YearID) AS minyear,max(a.YearID) AS maxyear 
+            // GROUP BY make,model,engine ORDER BY make,model,engine");
+            ->select("SELECT DISTINCT CAST(a.YearID AS char) as year,TRIM(ma.MakeName) AS make,a.MakeID,a.ModelID,GROUP_CONCAT(DISTINCT a.EngineBaseID) AS EngineConfigID,TRIM(mo.ModelName) AS model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'), CONCAT(NULLIF(TRIM(`eb`.`Cylinders`), '-'), 'Cyl'), NULLIF(TRIM(`eb`.`BlockType`), '-'),NULLIF(`ft`.`EngineDisplay`, '-')) AS engine,COUNT(a.id) AS numberofrec,min(a.YearID) AS minyear,max(a.YearID) AS maxyear 
                             FROM $this->pg_db.applications a
                             JOIN $this->pg_secdb.make ma ON a.MakeID = ma.MakeID 
                             JOIN $this->pg_secdb.model mo ON a.ModelID = mo.ModelID 
@@ -702,7 +702,7 @@ class ClassicSearchController extends Controller
                             LEFT JOIN $this->pg_db.fueltype_web_display_mappings ft ON ec.FuelTypeID = ft.FuelTypeID
                             JOIN $this->pg_db.partNumberInfo pni ON a.part_id = pni.part_id
                             WHERE pni.partNumber='$partNumber'
-                            GROUP BY make,model,engine ORDER BY make,model,engine"));
+                            GROUP BY make,model,engine ORDER BY make,model,engine");
 
         return json_encode($results);
     }
@@ -712,7 +712,7 @@ class ClassicSearchController extends Controller
     {
 
         $product = DB::connection(self::$aces_vcdb)
-            // ->select(DB::raw("SELECT STRAIGHT_JOIN a.YearID AS year,TRIM(ma.MakeName) AS make,TRIM(mo.ModelName) AS model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'), CONCAT(NULLIF(TRIM(`eb`.`Cylinders`), '-'), 'Cyl'), NULLIF(TRIM(`eb`.`BlockType`), '-'),NULLIF(`ft`.`EngineDisplay`, '-')) AS engine
+            // ->select("SELECT STRAIGHT_JOIN a.YearID AS year,TRIM(ma.MakeName) AS make,TRIM(mo.ModelName) AS model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'), CONCAT(NULLIF(TRIM(`eb`.`Cylinders`), '-'), 'Cyl'), NULLIF(TRIM(`eb`.`BlockType`), '-'),NULLIF(`ft`.`EngineDisplay`, '-')) AS engine
             // FROM $this->pg_db.applications a JOIN make ma ON a.MakeID = ma.MakeID 
             // JOIN model mo ON a.ModelID = mo.ModelID 
             // JOIN engineconfig ec ON a.EngineConfigID = ec.EngineConfigID 
@@ -720,8 +720,8 @@ class ClassicSearchController extends Controller
             // LEFT JOIN $this->pg_db.fueltype_web_display_mappings ft ON ec.FuelTypeID = ft.FuelTypeID 
             // WHERE a.partnumber='$partNumber' 
             // GROUP BY year,make,model,engine  
-            // ORDER BY make,model,engine,year"));
-            ->select(DB::raw("SELECT a.YearID AS year,TRIM(ma.MakeName) AS make,TRIM(mo.ModelName) AS model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'), CONCAT(NULLIF(TRIM(`eb`.`Cylinders`), '-'), 'Cyl'), NULLIF(TRIM(`eb`.`BlockType`), '-'),NULLIF(`ft`.`EngineDisplay`, '-')) AS engine
+            // ORDER BY make,model,engine,year");
+            ->select("SELECT a.YearID AS year,TRIM(ma.MakeName) AS make,TRIM(mo.ModelName) AS model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'), CONCAT(NULLIF(TRIM(`eb`.`Cylinders`), '-'), 'Cyl'), NULLIF(TRIM(`eb`.`BlockType`), '-'),NULLIF(`ft`.`EngineDisplay`, '-')) AS engine
                 FROM $this->pg_db.applications a
                 JOIN $this->pg_secdb.make ma ON a.MakeID = ma.MakeID 
                 JOIN $this->pg_secdb.model mo ON a.ModelID = mo.ModelID 
@@ -731,7 +731,7 @@ class ClassicSearchController extends Controller
                 JOIN $this->pg_db.partNumberInfo pni ON a.part_id = pni.part_id
                 WHERE pni.partNumber='$partNumber' 
                 GROUP BY year,make,model,engine  
-                ORDER BY make,model,engine,year"));
+                ORDER BY make,model,engine,year");
 
 
 
@@ -807,7 +807,7 @@ class ClassicSearchController extends Controller
     {
 
         $product_count = DB::connection(self::$aces_vcdb)
-            // ->select(DB::raw("SELECT COUNT(*) as row_count FROM (SELECT DISTINCT CAST(a.YearID AS char) as year,TRIM(ma.MakeName) as make,a.MakeID,a.ModelID,GROUP_CONCAT(DISTINCT a.EngineBaseID) as EngineBaseID,TRIM(mo.ModelName) as model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'), CONCAT(NULLIF(TRIM(`eb`.`Cylinders`), '-'), 'Cyl'), NULLIF(TRIM(`eb`.`BlockType`), '-'),NULLIF(`ft`.`EngineDisplay`, '-')) AS engine,COUNT(a.id) as numberofrec,min(a.YearID) as minyear,max(a.YearID) as maxyear 
+            // ->select("SELECT COUNT(*) as row_count FROM (SELECT DISTINCT CAST(a.YearID AS char) as year,TRIM(ma.MakeName) as make,a.MakeID,a.ModelID,GROUP_CONCAT(DISTINCT a.EngineBaseID) as EngineBaseID,TRIM(mo.ModelName) as model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'), CONCAT(NULLIF(TRIM(`eb`.`Cylinders`), '-'), 'Cyl'), NULLIF(TRIM(`eb`.`BlockType`), '-'),NULLIF(`ft`.`EngineDisplay`, '-')) AS engine,COUNT(a.id) as numberofrec,min(a.YearID) as minyear,max(a.YearID) as maxyear 
             //     FROM $this->pg_db.applications a JOIN $this->pg_secdb.make ma ON a.MakeID = ma.MakeID 
             //     JOIN $this->pg_secdb.model mo ON a.ModelID = mo.ModelID 
             //     JOIN $this->pg_secdb.engineconfig ec ON a.EngineConfigID = ec.EngineConfigID 
@@ -815,8 +815,8 @@ class ClassicSearchController extends Controller
             //     LEFT JOIN $this->pg_db.fueltype_web_display_mappings ft ON ec.FuelTypeID = ft.FuelTypeID 
             //     WHERE a.partnumber='$partNumber' 
             //     GROUP BY make,model,engine 
-            //     ORDER BY make,model,engine ) as cnt"));
-            ->select(DB::raw("SELECT COUNT(*) as row_count FROM (SELECT DISTINCT CAST(a.YearID AS char) as year,TRIM(ma.MakeName) as make,a.MakeID,a.ModelID,GROUP_CONCAT(DISTINCT a.EngineBaseID) as EngineBaseID,TRIM(mo.ModelName) as model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'), CONCAT(NULLIF(TRIM(`eb`.`Cylinders`), '-'), 'Cyl'), NULLIF(TRIM(`eb`.`BlockType`), '-'),NULLIF(`ft`.`EngineDisplay`, '-')) AS engine,COUNT(a.id) as numberofrec,min(a.YearID) as minyear,max(a.YearID) as maxyear 
+            //     ORDER BY make,model,engine ) as cnt");
+            ->select("SELECT COUNT(*) as row_count FROM (SELECT DISTINCT CAST(a.YearID AS char) as year,TRIM(ma.MakeName) as make,a.MakeID,a.ModelID,GROUP_CONCAT(DISTINCT a.EngineBaseID) as EngineBaseID,TRIM(mo.ModelName) as model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'), CONCAT(NULLIF(TRIM(`eb`.`Cylinders`), '-'), 'Cyl'), NULLIF(TRIM(`eb`.`BlockType`), '-'),NULLIF(`ft`.`EngineDisplay`, '-')) AS engine,COUNT(a.id) as numberofrec,min(a.YearID) as minyear,max(a.YearID) as maxyear 
                 FROM $this->pg_db.applications a
                 JOIN $this->pg_secdb.make ma ON a.MakeID = ma.MakeID 
                 JOIN $this->pg_secdb.model mo ON a.ModelID = mo.ModelID 
@@ -826,7 +826,7 @@ class ClassicSearchController extends Controller
                 JOIN $this->pg_db.partNumberInfo pni ON a.part_id = pni.part_id
                 WHERE pni.partNumber='$partNumber'
                 GROUP BY make,model,engine 
-                ORDER BY make,model,engine ) as cnt"));
+                ORDER BY make,model,engine ) as cnt");
 
         return $product_count;
     }
@@ -835,13 +835,13 @@ class ClassicSearchController extends Controller
     public function prodapplication1(Request $request, $partNumber, $makeID, $modelID, $engineConfigID, $min, $max)
     {
         $results["partyear"] = DB::connection(self::$main_db)
-            // ->select(DB::raw("SELECT DISTINCT YearID as year FROM applications 
+            // ->select("SELECT DISTINCT YearID as year FROM applications 
             // WHERE partnumber='$partNumber' AND MakeID='$makeID' AND ModelID='$modelID' AND EngineBaseID IN($engineConfigID) AND YearID BETWEEN $min AND $max 
-            // GROUP BY YearID ORDER BY YearID"));
-            ->select(DB::raw("SELECT DISTINCT YearID as year FROM applications
+            // GROUP BY YearID ORDER BY YearID");
+            ->select("SELECT DISTINCT YearID as year FROM applications
                             JOIN partNumberInfo pni ON applications.part_id = pni.part_id
                             WHERE pni.partNumber='$partNumber' AND MakeID='$makeID' AND ModelID='$modelID' AND EngineBaseID IN($engineConfigID) AND YearID BETWEEN $min AND $max 
-                            GROUP BY YearID ORDER BY YearID"));
+                            GROUP BY YearID ORDER BY YearID");
 
         return json_encode($results);
     }
@@ -851,17 +851,17 @@ class ClassicSearchController extends Controller
     public function partinterchanges(Request $request, $partNumber)
     {
         $results["product"] = DB::connection(self::$main_db)
-            // ->select(DB::raw("SELECT pm.partIntPartNumber,ib.interchange_name 
+            // ->select("SELECT pm.partIntPartNumber,ib.interchange_name 
             // FROM partInterchange_mapper pm JOIN Interchangename_brandcode_mapper ib ON pm.InterchangeNotes=ib.id 
             // WHERE pm.partNumber='$partNumber' 
-            // ORDER BY ib.interchange_name"));
-            ->select(DB::raw("SELECT pm.partIntPartNumber,ib.BrandName as interchange_name 
+            // ORDER BY ib.interchange_name");
+            ->select("SELECT pm.partIntPartNumber,ib.BrandName as interchange_name 
                             FROM partInterchange_mapper pm
                             JOIN Interchangename_brandcode_mapper ib ON pm.partIntBrandID=ib.BrandID AND pm.partIntSubBrandID <=> ib.SubBrandID
                             JOIN partNumberInfo pni ON pm.part_id = pni.part_id
                             WHERE pni.partNumber='$partNumber'
                             GROUP BY pm.partIntPartNumber,ib.BrandName 
-                            ORDER BY ib.BrandName"));
+                            ORDER BY ib.BrandName");
 
         return json_encode($results);
     }
@@ -870,18 +870,18 @@ class ClassicSearchController extends Controller
     // public function premiumcollection(Request $request,$partnumber)
     // {
     //   $productcount_premium=DB::connection(self::$aces_vcdb)
-    //                             // ->select(DB::raw("SELECT y.YearID AS year, TRIM(ma.MakeName) AS make ,TRIM(mo.ModelName) AS model FROM $this->pg_db.applications a 
+    //                             // ->select("SELECT y.YearID AS year, TRIM(ma.MakeName) AS make ,TRIM(mo.ModelName) AS model FROM $this->pg_db.applications a 
     //                             // JOIN year y ON a.YearID=y.YearID 
     //                             // JOIN make ma ON a.MakeID = ma.MakeID 
     //                             // JOIN model mo ON a.ModelID = mo.ModelID 
     //                             // WHERE a.partnumber='$partnumber' 
-    //                             // ORDER BY y.YearID DESC limit 1"));
-    //                             ->select(DB::raw("SELECT a.YearID AS year, TRIM(ma.MakeName) AS make ,TRIM(mo.ModelName) AS model FROM $this->pg_db.applications a  
+    //                             // ORDER BY y.YearID DESC limit 1");
+    //                             ->select("SELECT a.YearID AS year, TRIM(ma.MakeName) AS make ,TRIM(mo.ModelName) AS model FROM $this->pg_db.applications a  
     //                             JOIN make ma ON a.MakeID = ma.MakeID 
     //                             JOIN model mo ON a.ModelID = mo.ModelID 
     //                             JOIN $this->pg_db.partNumberInfo pni ON a.part_id = pni.part_id
     //                             WHERE pni.partNumber='$partnumber' 
-    //                             ORDER BY a.YearID DESC limit 1"));
+    //                             ORDER BY a.YearID DESC limit 1");
 
     //   return json_encode($productcount_premium);
     // }
@@ -892,15 +892,15 @@ class ClassicSearchController extends Controller
     {
 
         //   $beahead=DB::connection(self::$main_db)
-        //             ->select(DB::raw("SELECT DISTINCT(be.partNumber),be.OE_partno,be.Description,be.available_date,be.application,be.filename,p.partType,pm.partTypename,p.partNumber AS pgpartnumber 
+        //             ->select("SELECT DISTINCT(be.partNumber),be.OE_partno,be.Description,be.available_date,be.application,be.filename,p.partType,pm.partTypename,p.partNumber AS pgpartnumber 
         //             FROM be_ahead be LEFT JOIN partNumberInfo p ON p.partNumber=be.partNumber 
         //             LEFT JOIN parttype_master pm ON pm.partTypeid=p.partType 
-        //             ORDER BY beahead_order"));
+        //             ORDER BY beahead_order");
         $beahead = DB::connection(self::$main_db)
-            ->select(DB::raw("SELECT DISTINCT(be.partNumber),be.OE_partno,be.Description,be.available_date,be.application,be.filename,p.PartTerminologyID as partType,pm.partTypename,p.partNumber AS pgpartnumber 
+            ->select("SELECT DISTINCT(be.partNumber),be.OE_partno,be.Description,be.available_date,be.application,be.filename,p.PartTerminologyID as partType,pm.partTypename,p.partNumber AS pgpartnumber 
                 FROM be_ahead be LEFT JOIN partNumberInfo p ON p.partNumber=be.partNumber 
                 LEFT JOIN parttype_master pm ON pm.PartTerminologyID=p.PartTerminologyID 
-                ORDER BY beahead_order"));
+                ORDER BY beahead_order");
 
         return json_encode($beahead);
     }
@@ -909,20 +909,20 @@ class ClassicSearchController extends Controller
     {
 
         $productcount_beaheadymm = DB::connection(self::$aces_vcdb)
-            // ->select(DB::raw("SELECT y.YearID AS year, TRIM(ma.MakeName) AS make ,TRIM(mo.ModelName) AS model 
+            // ->select("SELECT y.YearID AS year, TRIM(ma.MakeName) AS make ,TRIM(mo.ModelName) AS model 
             // FROM $this->pg_db.applications a JOIN year y ON a.YearID=y.YearID 
             // JOIN make ma ON a.MakeID = ma.MakeID 
             // JOIN model mo ON a.ModelID = mo.ModelID 
             // WHERE partnumber='$partnumber' 
-            // ORDER BY y.YearID DESC LIMIT 1"));
+            // ORDER BY y.YearID DESC LIMIT 1");
 
-            ->select(DB::raw("SELECT a.YearID AS year, TRIM(ma.MakeName) AS make ,TRIM(mo.ModelName) AS model 
+            ->select("SELECT a.YearID AS year, TRIM(ma.MakeName) AS make ,TRIM(mo.ModelName) AS model 
                                 FROM $this->pg_db.applications a 
                                 JOIN make ma ON a.MakeID = ma.MakeID 
                                 JOIN model mo ON a.ModelID = mo.ModelID
                                 JOIN $this->pg_db.partNumberInfo pni ON a.part_id = pni.part_id
                                 WHERE pni.partNumber='$partnumber' 
-                                ORDER BY a.YearID DESC LIMIT 1"));
+                                ORDER BY a.YearID DESC LIMIT 1");
 
         return json_encode($productcount_beaheadymm);
     }

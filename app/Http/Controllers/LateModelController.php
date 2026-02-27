@@ -31,7 +31,7 @@ class LateModelController extends Controller
     public function index(Request $request)
     {
         $products["years"] = DB::connection(self::$main_db)->table('applications')
-                                                  ->select(DB::raw('DISTINCT(YearID) as year'))
+                                                  ->selectRaw('DISTINCT(YearID) as year')
                                                   ->orderBy('year','DESC')
                                                   ->take(3)
                                                   ->get();
@@ -48,14 +48,14 @@ class LateModelController extends Controller
         }
 
         // $products["parttypes"] = DB::connection(self::$main_db)
-                                // ->select(DB::raw("SELECT CASE WHEN partTypeid = 1 then 'Oil Filter' WHEN partTypeid = 14 then 'Housing Cap' WHEN partTypeid = 10 then 'Drain Plug' ELSE partTypename END AS partTypename 
+                                // ->select("SELECT CASE WHEN partTypeid = 1 then 'Oil Filter' WHEN partTypeid = 14 then 'Housing Cap' WHEN partTypeid = 10 then 'Drain Plug' ELSE partTypename END AS partTypename 
                                 // FROM parttype_master 
                                 // WHERE partTypeid IN(1,2,3,4,5,8,10,14) 
-                                // ORDER BY FIELD(partTypeid,1,2,3,4,5,14,10,8)"));
-                                // ->select(DB::raw("SELECT CASE WHEN PartTerminologyID = 5340 then 'Oil Filter' WHEN PartTerminologyID = 54048 then 'Housing Cap' WHEN PartTerminologyID = 5560 then 'Drain Plug' ELSE partTypename END AS partTypename 
+                                // ORDER BY FIELD(partTypeid,1,2,3,4,5,14,10,8)");
+                                // ->select("SELECT CASE WHEN PartTerminologyID = 5340 then 'Oil Filter' WHEN PartTerminologyID = 54048 then 'Housing Cap' WHEN PartTerminologyID = 5560 then 'Drain Plug' ELSE partTypename END AS partTypename 
                                 // FROM parttype_master 
                                 // WHERE PartTerminologyID IN(5340,6192,6832,6200,6216,8600,10964,8852,11713,47330,5560,5428,54048) 
-                                // ORDER BY partTypeOrder ASC"));
+                                // ORDER BY partTypeOrder ASC");
 
         $partTypeNames = [
             "Oil Filter",
@@ -80,7 +80,7 @@ class LateModelController extends Controller
             $parttypeid = implode(',',$partTypeArray[$id]);
 
             $get_partnumbers = DB::connection(self::$main_db) 
-                                // ->select(DB::raw("SELECT p.partnumber,TRIM(ma.MakeName) AS make,TRIM(mo.ModelName) AS model,p.partType 
+                                // ->select("SELECT p.partnumber,TRIM(ma.MakeName) AS make,TRIM(mo.ModelName) AS model,p.partType 
                                 // FROM applications a JOIN $this->pg_secdb.make ma ON a.MakeID = ma.MakeID 
                                 // JOIN $this->pg_secdb.model mo ON a.ModelID = mo.ModelID 
                                 // JOIN partNumberInfo p ON a.partnumber=p.partNumber 
@@ -88,8 +88,8 @@ class LateModelController extends Controller
                                 // p.partnumber NOT LIKE 'MG%' AND 
                                 // p.partnumber NOT IN('NSO','NSA','NSC','NSF','NST','NRO','NRA','NRC','NRF','NRT','TBA','NR') 
                                 // GROUP BY a.partnumber 
-                                // ORDER BY CAST(digits(a.partnumber) AS UNSIGNED) DESC"));
-                                ->select(DB::raw("SELECT p.partNumber as partnumber,TRIM(ma.MakeName) AS make,
+                                // ORDER BY CAST(digits(a.partnumber) AS UNSIGNED) DESC");
+                                ->select("SELECT p.partNumber as partnumber,TRIM(ma.MakeName) AS make,
                                     TRIM(mo.ModelName) AS model,p.PartTerminologyID as partType
                                 FROM applications a
                                 JOIN $this->pg_secdb.make ma ON a.MakeID = ma.MakeID
@@ -99,7 +99,7 @@ class LateModelController extends Controller
                                 p.partNumber NOT LIKE 'MG%' AND
                                 p.partNumber NOT IN('NSO','NSA','NSC','NSF','NST','NRO','NRA','NRC','NRF','NRT','TBA','NR')
                                 GROUP BY p.partNumber
-                                ORDER BY CAST(digits(p.partNumber) AS UNSIGNED) DESC"));
+                                ORDER BY CAST(digits(p.partNumber) AS UNSIGNED) DESC");
 
 
             if(count($get_partnumbers) > 0) {
@@ -122,7 +122,7 @@ class LateModelController extends Controller
                     $model = str_replace(' ', '-',$model);
 
                     $productImg = DB::connection(self::$main_db)
-                                // ->select(DB::raw("SELECT fileName from image_mapper WHERE partNumber='$part' 
+                                // ->select("SELECT fileName from image_mapper WHERE partNumber='$part' 
                                 //     ORDER BY CASE 
                                 //     WHEN fileName LIKE '%ZZ2_FRO.%' then 1 WHEN fileName LIKE '%P02_.%' then 2
                                 //     WHEN fileName LIKE '%P04_FRO.%' then 3 WHEN fileName LIKE '%P01_BAC.%' then 4
@@ -134,8 +134,8 @@ class LateModelController extends Controller
                                 //     WHEN fileName LIKE '%-C.%' then 15 WHEN fileName LIKE '%-D.%' then 16
                                 //     WHEN fileName LIKE '%-G.%' then 17 WHEN fileName LIKE '%-H.%' then 18
                                 //     WHEN fileName LIKE '%-K.%' then 19 WHEN fileName LIKE '%-I.%' then 20
-                                //     ELSE 21 END LIMIT 1"));
-                                ->select(DB::raw("SELECT fileName from image_mapper im
+                                //     ELSE 21 END LIMIT 1");
+                                ->select("SELECT fileName from image_mapper im
                                     JOIN partNumberInfo p ON im.part_id=p.part_id
                                     WHERE p.partNumber='$part'
                                     ORDER BY CASE 
@@ -149,7 +149,7 @@ class LateModelController extends Controller
                                     WHEN fileName LIKE '%-C.%' then 15 WHEN fileName LIKE '%-D.%' then 16
                                     WHEN fileName LIKE '%-G.%' then 17 WHEN fileName LIKE '%-H.%' then 18
                                     WHEN fileName LIKE '%-K.%' then 19 WHEN fileName LIKE '%-I.%' then 20
-                                    ELSE 21 END LIMIT 1"));
+                                    ELSE 21 END LIMIT 1");
 
                     
                    

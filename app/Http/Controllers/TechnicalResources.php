@@ -41,12 +41,12 @@ class TechnicalResources extends Controller
     {
 
         $bulletins= DB::connection(self::$main_db)
-            ->select(DB::raw("SELECT GROUP_CONCAT(DISTINCT pdf.title ORDER BY pdf.title SEPARATOR '!!') as title,GROUP_CONCAT(DISTINCT pdf.file_name ORDER BY pdf.title SEPARATOR '!!') as filename,cat.id as catid,cat.title as cattitle 
+            ->select("SELECT GROUP_CONCAT(DISTINCT pdf.title ORDER BY pdf.title SEPARATOR '!!') as title,GROUP_CONCAT(DISTINCT pdf.file_name ORDER BY pdf.title SEPARATOR '!!') as filename,cat.id as catid,cat.title as cattitle 
                 FROM wp_bsk_pdf_manager_relationships rel JOIN wp_bsk_pdf_manager_pdfs pdf ON rel.pdf_id=pdf.id 
                 JOIN wp_bsk_pdf_manager_cats cat ON rel.cat_id=cat.id 
                 WHERE rel.type='CAT' AND rel.cat_id IN(12,13,14) AND pdf.trash='0' 
                 GROUP BY cat.id 
-                ORDER BY cat.last_date ASC"));
+                ORDER BY cat.last_date ASC");
         
         $final_bulletins = [];
         
@@ -151,22 +151,22 @@ class TechnicalResources extends Controller
     }
 
     public function getthevideos(){
-        $missingpmg1 = DB::connection(self::$main_db)->select(DB::raw("SELECT * FROM pgfilter_videos where is_active=1 order by created_date desc limit 1"));
+        $missingpmg1 = DB::connection(self::$main_db)->select("SELECT * FROM pgfilter_videos where is_active=1 order by created_date desc limit 1");
         return json_encode($missingpmg1);
     }
 
     public function getothervideos($video_id1){
-        $othervideos = DB::connection(self::$main_db)->select(DB::raw("SELECT * FROM pgfilter_videos where video_id!='$video_id1' and is_active=1 ORDER BY created_date DESC"));
+        $othervideos = DB::connection(self::$main_db)->select("SELECT * FROM pgfilter_videos where video_id!='$video_id1' and is_active=1 ORDER BY created_date DESC");
         return json_encode($othervideos);
     }
 
     public function getothervideosontop($other_video_id){
-        $othervideosnames = DB::connection(self::$main_db)->select(DB::raw("SELECT * FROM pgfilter_videos where video_id='$other_video_id' and is_active=1 limit 1"));
+        $othervideosnames = DB::connection(self::$main_db)->select("SELECT * FROM pgfilter_videos where video_id='$other_video_id' and is_active=1 limit 1");
         return json_encode($othervideosnames);
     }
 
     public function getsearchvideo($get_videossearchterm) {
-        $searchedvideosnames = DB::connection(self::$main_db)->select(DB::raw("SELECT * FROM pgfilter_videos where video_name LIKE '%$get_videossearchterm%' and is_active=1 ORDER BY created_date DESC"));
+        $searchedvideosnames = DB::connection(self::$main_db)->select("SELECT * FROM pgfilter_videos where video_name LIKE '%$get_videossearchterm%' and is_active=1 ORDER BY created_date DESC");
         return json_encode($searchedvideosnames);
     }
 

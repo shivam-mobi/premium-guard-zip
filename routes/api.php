@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{VoiceController,ChatBotApiController,StatisticsController};
+use App\Http\Controllers\{VoiceController,ChatBotApiController,StatisticsController,ContactUsController};
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +29,10 @@ Route::get('engineChatbotapi/{bvid}', [ChatBotApiController::class,'engineWhatsa
 
 Route::get('dynamicChatbotapi/{searchterm}/', [ChatBotApiController::class,'dynamicWhatsappChatbot']);
 Route::get('productsChatbotapi/{bvid}/{enginebaseid}', [ChatBotApiController::class,'productsWhatsappChatbot']);
+
+Route::middleware('api.key')->get('settings', [ContactUsController::class, 'getSettings']);
+Route::middleware('api.key')->post('contact-us', [ContactUsController::class, 'store']);
+Route::middleware('api.key')->post('device-token', [ContactUsController::class, 'insertDeviceToken']);
 
 Route::post('insertDeviceTokens', [StatisticsController::class, 'insert_device_tokens']);
 Route::post('getImageDimensionArray', [StatisticsController::class, 'get_image_dimensions'])->withoutMiddleware("throttle:api");

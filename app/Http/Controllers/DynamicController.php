@@ -37,13 +37,13 @@ class DynamicController extends Controller
         
         //Partnumbers
     	// $partnumber = DB::connection(self::$main_db)
-        //                 ->select(DB::raw("SELECT '$partNumberId' as id, p.partNumber as label, CONCAT(pm.partTypename, '===', p.partType) as value 
+        //                 ->select("SELECT '$partNumberId' as id, p.partNumber as label, CONCAT(pm.partTypename, '===', p.partType) as value 
         //                 FROM partNumberInfo p JOIN parttype_master pm ON pm.partTypeid=p.partType 
-        //                 WHERE p.partNumber LIKE '%$searchterm%' AND p.partNumber NOT IN('NRC','NSC','NRA','NSA','NRO','NSO','NRF','NSF','NRT','NST','TBA','NR')"));
+        //                 WHERE p.partNumber LIKE '%$searchterm%' AND p.partNumber NOT IN('NRC','NSC','NRA','NSA','NRO','NSO','NRF','NSF','NRT','NST','TBA','NR')");
         $partnumber = DB::connection(self::$main_db)
-                        ->select(DB::raw("SELECT '$partNumberId' as id, p.partNumber as label, CONCAT(pm.partTypename, '===', p.PartTerminologyID) as value 
+                        ->select("SELECT '$partNumberId' as id, p.partNumber as label, CONCAT(pm.partTypename, '===', p.PartTerminologyID) as value 
                         FROM partNumberInfo p JOIN parttype_master pm ON pm.PartTerminologyID=p.PartTerminologyID 
-                        WHERE p.partNumber LIKE '%$searchterm%' AND p.partNumber NOT IN('NRC','NSC','NRA','NSA','NRO','NSO','NRF','NSF','NRT','NST','TBA','NR') GROUP BY p.partNumber"));
+                        WHERE p.partNumber LIKE '%$searchterm%' AND p.partNumber NOT IN('NRC','NSC','NRA','NSA','NRO','NSO','NRF','NSF','NRT','NST','TBA','NR') GROUP BY p.partNumber");
 
     	if (!empty($partnumber) && count($partnumber) > 0) {
             // Create object for part numbers title
@@ -68,7 +68,7 @@ class DynamicController extends Controller
         $appl_string = str_replace(" ", "%' and REPLACE(dsf.YMME_Concatenated,'-','') LIKE '%", $searchname_appl);
 
         // $pro=DB::connection(self::$aces_vcdb)
-        //         ->select(DB::raw("SELECT STRAIGHT_JOIN CONCAT(bv.YearID, '!', bv.MakeID, '!', bv.ModelID, '!', GROUP_CONCAT(DISTINCT eb.EngineBaseID)) as id, CONCAT(CAST(bv.YearID AS char), ' ', TRIM(ma.MakeName), ' ', TRIM(mo.ModelName), ' ', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))) as label, CONCAT(ids.BaseVehicleID, '===', CAST(bv.YearID AS char), '!', TRIM(ma.MakeName), '!', TRIM(mo.ModelName), '!', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))) as value 
+        //         ->select("SELECT STRAIGHT_JOIN CONCAT(bv.YearID, '!', bv.MakeID, '!', bv.ModelID, '!', GROUP_CONCAT(DISTINCT eb.EngineBaseID)) as id, CONCAT(CAST(bv.YearID AS char), ' ', TRIM(ma.MakeName), ' ', TRIM(mo.ModelName), ' ', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))) as label, CONCAT(ids.BaseVehicleID, '===', CAST(bv.YearID AS char), '!', TRIM(ma.MakeName), '!', TRIM(mo.ModelName), '!', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))) as value 
         //         FROM pgi_web_dynamic_search_flat dsf JOIN pgi_web_dynamic_search_flat_ids ids ON dsf.YMME_ID=ids.YMME_Target_ID 
         //         JOIN basevehicle bv ON ids.BaseVehicleID=bv.BaseVehicleID 
         //         JOIN make ma ON bv.MakeID = ma.MakeID JOIN model mo ON bv.ModelID = mo.ModelID 
@@ -77,10 +77,10 @@ class DynamicController extends Controller
         //         LEFT JOIN $this->pg_db.fueltype_web_display_mappings ft ON ec.FuelTypeID = ft.FuelTypeID 
         //         WHERE REPLACE(dsf.YMME_Concatenated,'-','') LIKE '%$appl_string%' 
         //         GROUP BY CAST(bv.YearID AS char), TRIM(ma.MakeName), TRIM(mo.ModelName),CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))
-        //         ORDER BY CAST(bv.YearID AS char) DESC"));
+        //         ORDER BY CAST(bv.YearID AS char) DESC");
 
         $pro=DB::connection(self::$aces_vcdb)
-                ->select(DB::raw("SELECT STRAIGHT_JOIN CONCAT(bv.YearID, '!', bv.MakeID, '!', bv.ModelID, '!', GROUP_CONCAT(DISTINCT eb.EngineBaseID)) as id, CONCAT(CAST(bv.YearID AS char), ' ', TRIM(ma.MakeName), ' ', TRIM(mo.ModelName), ' ', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))) as label, CONCAT(dsf.BaseVehicleID, '===', CAST(bv.YearID AS char), '!', TRIM(ma.MakeName), '!', TRIM(mo.ModelName), '!', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))) as value 
+                ->select("SELECT STRAIGHT_JOIN CONCAT(bv.YearID, '!', bv.MakeID, '!', bv.ModelID, '!', GROUP_CONCAT(DISTINCT eb.EngineBaseID)) as id, CONCAT(CAST(bv.YearID AS char), ' ', TRIM(ma.MakeName), ' ', TRIM(mo.ModelName), ' ', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))) as label, CONCAT(dsf.BaseVehicleID, '===', CAST(bv.YearID AS char), '!', TRIM(ma.MakeName), '!', TRIM(mo.ModelName), '!', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))) as value 
                 FROM $this->pg_db.pgi_web_dynamic_search_flat dsf 
                 JOIN basevehicle bv ON dsf.BaseVehicleID=bv.BaseVehicleID 
                 JOIN make ma ON bv.MakeID = ma.MakeID JOIN model mo ON bv.ModelID = mo.ModelID 
@@ -89,7 +89,7 @@ class DynamicController extends Controller
                 LEFT JOIN $this->pg_db.fueltype_web_display_mappings ft ON ec.FuelTypeID = ft.FuelTypeID 
                 WHERE REPLACE(dsf.YMME_Concatenated,'-','') LIKE '%$appl_string%' 
                 GROUP BY CAST(bv.YearID AS char), TRIM(ma.MakeName), TRIM(mo.ModelName),CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))
-                ORDER BY CAST(bv.YearID AS char) DESC"));
+                ORDER BY CAST(bv.YearID AS char) DESC");
 
         if (!empty($pro) && count($pro) > 0) {
             // Create object for applications title
@@ -112,28 +112,28 @@ class DynamicController extends Controller
         //Partinterchanges
         $searchterm = str_replace(['-', ' ', '/'], '', $searchterm);
         $premium=DB::connection(self::$main_db)
-                            // ->select(DB::raw("SELECT pm.partIntPartNumber,i.interchange_name,i.id,pm.partNumber 
+                            // ->select("SELECT pm.partIntPartNumber,i.interchange_name,i.id,pm.partNumber 
                             // FROM partInterchange_mapper pm JOIN Interchangename_brandcode_mapper i ON pm.InterchangeNotes=i.id 
                             // WHERE pm.partNumber NOT IN('NRC','NSC','NRA','NSA','NRO','NSO','NRF','NSF','NRT','NST','TBA','NR') AND 
                             // REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(pm.partIntPartNumber,'-',''),'*',''),' ',''),'_',''),'/','')  LIKE '%$searchterm%' 
-                            // GROUP BY pm.partIntPartNumber,i.interchange_name"));
+                            // GROUP BY pm.partIntPartNumber,i.interchange_name");
 
-                            // ->select(DB::raw("SELECT '$premiumId' as id, CONCAT(pm.partIntPartNumber, ' ', i.BrandName) as label, CONCAT(pm.partIntPartNumber, '===', i.id) as value
+                            // ->select("SELECT '$premiumId' as id, CONCAT(pm.partIntPartNumber, ' ', i.BrandName) as label, CONCAT(pm.partIntPartNumber, '===', i.id) as value
                             // FROM partInterchange_mapper pm
                             // JOIN Interchangename_brandcode_mapper i ON pm.partIntBrandID=i.BrandID AND pm.partIntSubBrandID <=> i.SubBrandID
                             // JOIN partNumberInfo pni ON pni.part_id = pm.part_id
                             // WHERE pni.partNumber NOT IN('NRC','NSC','NRA','NSA','NRO','NSO','NRF','NSF','NRT','NST','TBA','NR') AND 
                             // REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(pm.partIntPartNumber,'-',''),'*',''),' ',''),'_',''),'/','')  LIKE '%$searchterm%' 
-                            // GROUP BY pm.partIntPartNumber,i.BrandName"));
+                            // GROUP BY pm.partIntPartNumber,i.BrandName");
                             // Adding join with parttype_master table to check PartTerminologyID exists in it
-                            ->select(DB::raw("SELECT '$premiumId' as id, CONCAT(pm.partIntPartNumber, ' ', i.BrandName) as label, CONCAT(pm.partIntPartNumber, '===', i.id) as value
+                            ->select("SELECT '$premiumId' as id, CONCAT(pm.partIntPartNumber, ' ', i.BrandName) as label, CONCAT(pm.partIntPartNumber, '===', i.id) as value
                             FROM partInterchange_mapper pm
                             JOIN Interchangename_brandcode_mapper i ON pm.partIntBrandID=i.BrandID AND pm.partIntSubBrandID <=> i.SubBrandID
                             JOIN partNumberInfo pni ON pni.part_id = pm.part_id
                             JOIN parttype_master ptm ON ptm.PartTerminologyID=pni.PartTerminologyID
                             WHERE pni.partNumber NOT IN('NRC','NSC','NRA','NSA','NRO','NSO','NRF','NSF','NRT','NST','TBA','NR') AND 
                             REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(pm.partIntPartNumber,'-',''),'*',''),' ',''),'_',''),'/','')  LIKE '%$searchterm%' 
-                            GROUP BY pm.partIntPartNumber,i.BrandName"));
+                            GROUP BY pm.partIntPartNumber,i.BrandName");
 
         if(!empty($premium) && count($premium) > 0) {
             // Create object for competitors title
@@ -169,7 +169,7 @@ class DynamicController extends Controller
         $split_term_array = explode(" ",$searchname1);
 
         $split_term = str_replace(" ","%' OR partTypename LIKE '%", $searchname1);
-        $parttypename_result = DB::connection(self::$main_db)->select(DB::raw("SELECT partTypename FROM parttype_master WHERE partTypename LIKE '%$split_term%'"));
+        $parttypename_result = DB::connection(self::$main_db)->select("SELECT partTypename FROM parttype_master WHERE partTypename LIKE '%$split_term%'");
 
         if(!empty($parttypename_result) && count($split_term_array) > 1) {
 
@@ -210,8 +210,8 @@ class DynamicController extends Controller
                     //get the ids of parttypename which has all the keywords related to partttypename
                     $join_pt_term = implode(" ",$arr_match);
                     $filtered_term = str_replace(" ","%' AND partTypename LIKE '%", $join_pt_term);
-                    // $filtered_result = DB::connection(self::$main_db)->select(DB::raw("SELECT partTypeid FROM parttype_master WHERE partTypename LIKE '%$filtered_term%'"));
-                    $filtered_result = DB::connection(self::$main_db)->select(DB::raw("SELECT PartTerminologyID as partTypeid FROM parttype_master WHERE partTypename LIKE '%$filtered_term%'"));
+                    // $filtered_result = DB::connection(self::$main_db)->select("SELECT partTypeid FROM parttype_master WHERE partTypename LIKE '%$filtered_term%'");
+                    $filtered_result = DB::connection(self::$main_db)->select("SELECT PartTerminologyID as partTypeid FROM parttype_master WHERE partTypename LIKE '%$filtered_term%'");
 
                     foreach($filtered_result as $fr) {
                         array_push($final_ptid,$fr->partTypeid);
@@ -227,7 +227,7 @@ class DynamicController extends Controller
                    
                         $appl_string = str_replace(" ", "%' and REPLACE(dsf.YMME_Concatenated,'-','') LIKE '%", $final_string);
 
-                        // $pro = DB::connection(self::$aces_vcdb)->select(DB::raw("SELECT STRAIGHT_JOIN bv.YearID,bv.MakeID,bv.ModelID,ids.BaseVehicleID,GROUP_CONCAT(DISTINCT eb.EngineBaseID) as EngineBaseID,CAST(bv.YearID AS char) as year,TRIM(ma.MakeName) AS make,TRIM(mo.ModelName) as model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L')) AS engine 
+                        // $pro = DB::connection(self::$aces_vcdb)->select("SELECT STRAIGHT_JOIN bv.YearID,bv.MakeID,bv.ModelID,ids.BaseVehicleID,GROUP_CONCAT(DISTINCT eb.EngineBaseID) as EngineBaseID,CAST(bv.YearID AS char) as year,TRIM(ma.MakeName) AS make,TRIM(mo.ModelName) as model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L')) AS engine 
                         //     FROM pgi_web_dynamic_search_flat dsf JOIN pgi_web_dynamic_search_flat_ids ids ON dsf.YMME_ID=ids.YMME_Target_ID 
                         //     JOIN basevehicle bv ON ids.BaseVehicleID=bv.BaseVehicleID 
                         //     JOIN make ma ON bv.MakeID = ma.MakeID 
@@ -238,8 +238,8 @@ class DynamicController extends Controller
                         //     JOIN  $this->pg_db.partNumberInfo pn ON a.partnumber=pn.partNumber
                         //     WHERE REPLACE(dsf.YMME_Concatenated,'-','') LIKE '%$appl_string%' AND pn.partType IN($ptid) 
                         //     GROUP BY a.BaseVehicleID,eb.Liter 
-                        //     ORDER BY year DESC,make,model,engine"));
-                        // $pro = DB::connection(self::$aces_vcdb)->select(DB::raw("SELECT STRAIGHT_JOIN CONCAT(bv.YearID, '!', bv.MakeID, '!', bv.ModelID, '!', GROUP_CONCAT(DISTINCT eb.EngineBaseID)) as id, CONCAT(CAST(bv.YearID AS char), ' ', TRIM(ma.MakeName), ' ', TRIM(mo.ModelName), ' ', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))) as label, CONCAT(ids.BaseVehicleID, '===', CAST(bv.YearID AS char), '!', TRIM(ma.MakeName), '!', TRIM(mo.ModelName), '!', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))) as value  
+                        //     ORDER BY year DESC,make,model,engine");
+                        // $pro = DB::connection(self::$aces_vcdb)->select("SELECT STRAIGHT_JOIN CONCAT(bv.YearID, '!', bv.MakeID, '!', bv.ModelID, '!', GROUP_CONCAT(DISTINCT eb.EngineBaseID)) as id, CONCAT(CAST(bv.YearID AS char), ' ', TRIM(ma.MakeName), ' ', TRIM(mo.ModelName), ' ', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))) as label, CONCAT(ids.BaseVehicleID, '===', CAST(bv.YearID AS char), '!', TRIM(ma.MakeName), '!', TRIM(mo.ModelName), '!', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))) as value  
                         //     FROM pgi_web_dynamic_search_flat dsf JOIN pgi_web_dynamic_search_flat_ids ids ON dsf.YMME_ID=ids.YMME_Target_ID 
                         //     JOIN basevehicle bv ON ids.BaseVehicleID=bv.BaseVehicleID 
                         //     JOIN make ma ON bv.MakeID = ma.MakeID 
@@ -250,8 +250,8 @@ class DynamicController extends Controller
                         //     JOIN  $this->pg_db.partNumberInfo pn ON a.part_id=pn.part_id
                         //     WHERE REPLACE(dsf.YMME_Concatenated,'-','') LIKE '%$appl_string%' AND pn.partType IN($ptid) 
                         //     GROUP BY a.BaseVehicleID,eb.Liter 
-                        //     ORDER BY CAST(bv.YearID AS char) DESC, TRIM(ma.MakeName), TRIM(mo.ModelName), CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))"));
-                        $pro = DB::connection(self::$aces_vcdb)->select(DB::raw("SELECT STRAIGHT_JOIN CONCAT(bv.YearID, '!', bv.MakeID, '!', bv.ModelID, '!', GROUP_CONCAT(DISTINCT eb.EngineBaseID)) as id, CONCAT(CAST(bv.YearID AS char), ' ', TRIM(ma.MakeName), ' ', TRIM(mo.ModelName), ' ', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))) as label, CONCAT(dsf.BaseVehicleID, '===', CAST(bv.YearID AS char), '!', TRIM(ma.MakeName), '!', TRIM(mo.ModelName), '!', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))) as value  
+                        //     ORDER BY CAST(bv.YearID AS char) DESC, TRIM(ma.MakeName), TRIM(mo.ModelName), CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))");
+                        $pro = DB::connection(self::$aces_vcdb)->select("SELECT STRAIGHT_JOIN CONCAT(bv.YearID, '!', bv.MakeID, '!', bv.ModelID, '!', GROUP_CONCAT(DISTINCT eb.EngineBaseID)) as id, CONCAT(CAST(bv.YearID AS char), ' ', TRIM(ma.MakeName), ' ', TRIM(mo.ModelName), ' ', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))) as label, CONCAT(dsf.BaseVehicleID, '===', CAST(bv.YearID AS char), '!', TRIM(ma.MakeName), '!', TRIM(mo.ModelName), '!', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))) as value  
                             FROM $this->pg_db.pgi_web_dynamic_search_flat dsf
                             JOIN basevehicle bv ON dsf.BaseVehicleID=bv.BaseVehicleID 
                             JOIN make ma ON bv.MakeID = ma.MakeID 
@@ -262,7 +262,7 @@ class DynamicController extends Controller
                             JOIN  $this->pg_db.partNumberInfo pn ON a.part_id=pn.part_id
                             WHERE REPLACE(dsf.YMME_Concatenated,'-','') LIKE '%$appl_string%' AND pn.PartTerminologyID IN($ptid) 
                             GROUP BY a.BaseVehicleID,eb.Liter 
-                            ORDER BY CAST(bv.YearID AS char) DESC, TRIM(ma.MakeName), TRIM(mo.ModelName), CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))"));
+                            ORDER BY CAST(bv.YearID AS char) DESC, TRIM(ma.MakeName), TRIM(mo.ModelName), CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'))");
 
                      
                             if (!empty($pro) && count($pro) > 0) {
@@ -298,14 +298,14 @@ class DynamicController extends Controller
     public function interchangeresult(Request $request,$int_name,$int_no)
     {  
         $interchnage_pt['res']=DB::connection(self::$main_db)
-                                // ->select(DB::raw("SELECT pm.partNumber,pm.partIntPartNumber,i.interchange_name 
+                                // ->select("SELECT pm.partNumber,pm.partIntPartNumber,i.interchange_name 
                                 // FROM partInterchange_mapper pm JOIN Interchangename_brandcode_mapper i ON pm.InterchangeNotes=i.id 
-                                // WHERE pm.partIntPartNumber='".$int_name."' and InterchangeNotes=".$int_no.""));
-                                ->select(DB::raw("SELECT pni.partNumber,pm.partIntPartNumber,i.BrandName as interchange_name 
+                                // WHERE pm.partIntPartNumber='".$int_name."' and InterchangeNotes=".$int_no."");
+                                ->select("SELECT pni.partNumber,pm.partIntPartNumber,i.BrandName as interchange_name 
                                 FROM partInterchange_mapper pm
                                 JOIN Interchangename_brandcode_mapper i ON pm.partIntBrandID=i.BrandID AND pm.partIntSubBrandID <=> i.SubBrandID
                                 JOIN  partNumberInfo pni ON pm.part_id=pni.part_id
-                                WHERE pm.partIntPartNumber='".$int_name."' and i.id=".$int_no." GROUP BY pm.partIntPartNumber,i.BrandName,pni.partNumber"));
+                                WHERE pm.partIntPartNumber='".$int_name."' and i.id=".$int_no." GROUP BY pm.partIntPartNumber,i.BrandName,pni.partNumber");
                                 
         return json_encode($interchnage_pt);
     }
@@ -313,12 +313,12 @@ class DynamicController extends Controller
 
     public function intersuperseded(Request $request,$partNumber)
     {
-        // $superseded=DB::connection(self::$main_db)->select(DB::raw("SELECT p.EI_PTS,p.partType,pm.partTypename 
+        // $superseded=DB::connection(self::$main_db)->select("SELECT p.EI_PTS,p.partType,pm.partTypename 
         //         FROM partNumberInfo p JOIN parttype_master pm ON pm.partTypeid=p.partType 
-        //         WHERE partNumber='$partNumber'"));
-        $superseded=DB::connection(self::$main_db)->select(DB::raw("SELECT p.PartTerminologyID as partType,pm.partTypename 
+        //         WHERE partNumber='$partNumber'");
+        $superseded=DB::connection(self::$main_db)->select("SELECT p.PartTerminologyID as partType,pm.partTypename 
                 FROM partNumberInfo p JOIN parttype_master pm ON pm.PartTerminologyID=p.PartTerminologyID 
-                WHERE partNumber='$partNumber'"));
+                WHERE partNumber='$partNumber'");
                 
         return json_encode($superseded);
     }
@@ -326,11 +326,11 @@ class DynamicController extends Controller
     public function interchangeParttype(Request $request,$partNumber)
     {
         // $superseded = DB::connection(self::$main_db)
-        //                 ->select(DB::raw("SELECT p.EI_PTS,p.partType,pm.partTypename FROM partNumberInfo p 
-        //                 JOIN parttype_master pm ON pm.partTypeid=p.partType WHERE partnumber='$partNumber'"));
+        //                 ->select("SELECT p.EI_PTS,p.partType,pm.partTypename FROM partNumberInfo p 
+        //                 JOIN parttype_master pm ON pm.partTypeid=p.partType WHERE partnumber='$partNumber'");
         $superseded = DB::connection(self::$main_db)
-                        ->select(DB::raw("SELECT p.PartTerminologyID as partType,pm.partTypename FROM partNumberInfo p 
-                        JOIN parttype_master pm ON pm.PartTerminologyID=p.PartTerminologyID WHERE partNumber='$partNumber'"));
+                        ->select("SELECT p.PartTerminologyID as partType,pm.partTypename FROM partNumberInfo p 
+                        JOIN parttype_master pm ON pm.PartTerminologyID=p.PartTerminologyID WHERE partNumber='$partNumber'");
 
         return json_encode($superseded);
     }
@@ -543,19 +543,19 @@ class DynamicController extends Controller
 
         // $curentMonth=date('m');
         // $curentYear=date('Y');
-        // $cnt=DB::connection(self::$main_db)->select(DB::raw("SELECT id FROM partnumber_statistics where part_month='$curentMonth' and part_year='$curentYear' and partnumber='$partnumber'"));
+        // $cnt=DB::connection(self::$main_db)->select("SELECT id FROM partnumber_statistics where part_month='$curentMonth' and part_year='$curentYear' and partnumber='$partnumber'");
 
         // if(empty($cnt))
         // {
 
-        //     $wpdb=DB::connection(self::$main_db)->select(DB::raw("INSERT INTO partnumber_statistics (part_month,part_year,partnumber,count) VALUES ('$curentMonth','$curentYear','$partnumber','1')"));
+        //     $wpdb=DB::connection(self::$main_db)->select("INSERT INTO partnumber_statistics (part_month,part_year,partnumber,count) VALUES ('$curentMonth','$curentYear','$partnumber','1')");
         // }
         // else
         // {
 
 
         //     $partId=$cnt[0]->id;
-        //     $wpdb=DB::connection(self::$main_db)->select(DB::raw("UPDATE partnumber_statistics SET count=count+1 WHERE id='$partId'"));
+        //     $wpdb=DB::connection(self::$main_db)->select("UPDATE partnumber_statistics SET count=count+1 WHERE id='$partId'");
 
         // }
 
@@ -575,14 +575,14 @@ class DynamicController extends Controller
         // $curentMonth=date('m');
         // $curentYear=date('Y');
 
-        // $cnt = DB::select(DB::raw("SELECT n_id FROM not_found_applications where missing_search='$searchterm'"));
+        // $cnt = DB::select(DB::raw("SELECT n_id FROM not_found_applications where missing_search='$searchterm'");
 
         // if(empty($cnt)) {
-        //     $wpdb=DB::select(DB::raw("INSERT INTO not_found_applications (n_id,missing_search,app_year,app_month,count_of_app) VALUES ('','$searchterm','$curentYear','$curentMonth','1')"));
+        //     $wpdb=DB::select(DB::raw("INSERT INTO not_found_applications (n_id,missing_search,app_year,app_month,count_of_app) VALUES ('','$searchterm','$curentYear','$curentMonth','1')");
         // }
         // else {
         //     $appId = $cnt[0]->n_id;
-        //     $wpdb=DB::select(DB::raw("UPDATE not_found_applications SET count_of_app = count_of_app+1 WHERE n_id='$appId'"));
+        //     $wpdb=DB::select(DB::raw("UPDATE not_found_applications SET count_of_app = count_of_app+1 WHERE n_id='$appId'");
         // }
 
         // return json_encode($wpdb);
