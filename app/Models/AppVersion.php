@@ -19,4 +19,10 @@ class AppVersion extends Model
     protected $casts = [
         'force_update' => 'boolean',
     ];
+
+    protected $visible = [
+        'latest_version',
+        'force_update',
+        'update_message',
+    ];
 }

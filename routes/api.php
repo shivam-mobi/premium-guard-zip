@@ -33,7 +33,7 @@ Route::get('productsChatbotapi/{bvid}/{enginebaseid}', [ChatBotApiController::cl
 Route::middleware('api.key')->get('settings', [ContactUsController::class, 'getSettings']);
 Route::middleware('api.key')->post('contact-us', [ContactUsController::class, 'store']);
 Route::middleware('api.key')->post('device-token', [ContactUsController::class, 'insertDeviceToken']);
-Route::middleware('api.key')->match(['get', 'post'], 'check-update', [ContactUsController::class, 'checkUpdate']);
+Route::middleware('api.key')->get('check-update', [ContactUsController::class, 'checkUpdate']);
 
 Route::post('insertDeviceTokens', [StatisticsController::class, 'insert_device_tokens']);
 Route::post('getImageDimensionArray', [StatisticsController::class, 'get_image_dimensions'])->withoutMiddleware("throttle:api");
