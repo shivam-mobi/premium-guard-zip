@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AppDeviceToken;
+use App\Models\AppVersion;
 use App\Models\ContactUs;
 use App\Models\Setting;
 use Illuminate\Http\Request;
@@ -87,6 +88,58 @@ class ContactUsController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Device token saved successfully.',
+        ]);
+    }
+
+    /**
+     * Check for force app update.
+     * GET /api/check-update?platform=android&current_version=1.1.0&app_key=xxx
+     */
+    public function checkUpdate(Request $request)
+    {
+        $platform = $request->input('platform') ?? $request->input('Platform');
+        $currentVersion = $request->input('current_version') ?? $request->input('currentVersion');
+        $appKey = $request->input('app_key') ?? $request->input('appKey');
+
+        if (empty($platform) || empty($currentVersion) || empty($appKey)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'platform, current_version and app_key are required.',
+            ], 422);
+        }
+
+        $platform = strtolower($platform);
+        if (!in_array($platform, ['ios', 'android'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'platform must be ios or android.',
+            ], 422);
+        }
+
+        $appVersion = AppVersion::where('app_key', $appKey)
+            ->where('platform', $platform)
+            ->first();
+
+        if (!$appVersion) {
+            return response()->json([
+                'success' => true,
+                'force_update' => false,
+                'update_available' => false,
+                'message' => 'You are on the latest version.',
+            ]);
+        }
+
+        $updateAvailable = version_compare($currentVersion, $appVersion->latest_version, '<');
+        $forceUpdate = $updateAvailable && version_compare($currentVersion, $appVersion->min_version, '<');
+
+        return response()->json([
+            'success' => true,
+            'force_update' => $forceUpdate,
+            'update_available' => $updateAvailable,
+            'message' => $appVersion->update_message ?? ($updateAvailable ? 'A new version is available.' : 'You are on the latest version.'),
+            'store_url' => $appVersion->store_url,
+            'latest_version' => $appVersion->latest_version,
+            'min_version' => $appVersion->min_version,
         ]);
     }
 }
