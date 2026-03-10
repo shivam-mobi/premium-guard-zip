@@ -32,29 +32,53 @@ class ClassicSearchController extends Controller
         $this->current_year = date('Y');
     }
 
+    // public function indexBK(Request $request, $vehicletypeid)
+    // {
+    //     return $data = DB::connection(self::$aces_vcdb)
+    //         ->table('basevehicle')
+    //         ->join('model', 'basevehicle.ModelID', '=', 'model.ModelID')
+    //         ->join('vehicletype', 'model.VehicleTypeID', '=', 'vehicletype.VehicleTypeID')
+    //         ->select('basevehicle.YearID as year')->distinct()
+    //         ->where('vehicletype.VehicleTypeGroupID', $vehicletypeid)
+    //         ->groupBy('basevehicle.YearID')
+    //         ->orderBy('basevehicle.YearID', 'DESC')
+    //         ->get();
+    // }
+
     public function index(Request $request, $vehicletypeid)
     {
-        return $data = DB::connection(self::$aces_vcdb)
+        return DB::connection(self::$aces_vcdb)
             ->table('basevehicle')
             ->join('model', 'basevehicle.ModelID', '=', 'model.ModelID')
             ->join('vehicletype', 'model.VehicleTypeID', '=', 'vehicletype.VehicleTypeID')
-            ->select('basevehicle.YearID as year')->distinct()
-            ->where('vehicletype.VehicleTypeGroupID', $vehicletypeid)
+            ->select('basevehicle.YearID as year')
+            ->where('vehicletype.VehicleTypeGroupID', (int) $vehicletypeid)
             ->groupBy('basevehicle.YearID')
             ->orderBy('basevehicle.YearID', 'DESC')
             ->get();
     }
 
+    // public function vehicletypeCollectionBK(Request $request)
+    // {
+    //     return $data = DB::connection(self::$aces_vcdb)
+    //         ->table('vehicletypegroup')
+    //         ->select('VehicleTypeGroupID as vehicletypeID', 'VehicleTypeGroupName as vehicletype')
+    //         ->orderByRaw('FIELD(VehicleTypeGroupID,2,8,7)')
+    //         ->get();
+    // }
+
     public function vehicletypeCollection(Request $request)
     {
-        return $data = DB::connection(self::$aces_vcdb)
+        $items = DB::connection(self::$aces_vcdb)
             ->table('vehicletypegroup')
             ->select('VehicleTypeGroupID as vehicletypeID', 'VehicleTypeGroupName as vehicletype')
-            ->orderByRaw('FIELD(VehicleTypeGroupID,2,8,7)')
+            ->whereIn('VehicleTypeGroupID', [2, 8, 7])
+            ->orderByRaw('CASE VehicleTypeGroupID WHEN 2 THEN 1 WHEN 8 THEN 2 WHEN 7 THEN 3 END')
             ->get();
+        return $items;
     }
 
-    public function getmakes(Request $request, $vehicletypeid, $yearVal, $projectname=null)
+    public function getmakesBK(Request $request, $vehicletypeid, $yearVal, $projectname=null)
     {
 
         $next_year = $this->current_year + 1;
@@ -110,7 +134,49 @@ class ClassicSearchController extends Controller
 
     }
 
-    public function getmodels(Request $request, $vehicletypeid, $yearVal, $makeVal, $projectname=null)
+    public function getmakes(Request $request, $vehicletypeid, $yearVal, $projectname = null)
+    {
+        $vehicletypeid = (int) $vehicletypeid;
+        $yearVal = (int) $yearVal;
+        $next_year = $this->current_year + 1;
+        $isRecentYear = in_array($yearVal, [$this->current_year, $next_year], true);
+
+        if ($isRecentYear && in_array($projectname, ['pureflow', 'highflow'], true)) {
+            $seoTable = $projectname === 'pureflow' ? 'applications_pureflow_seo' : 'applications_highflow_seo';
+            $results = DB::connection(self::$aces_vcdb)->select(
+                "(SELECT make.MakeID AS MakeID, make.MakeName AS make
+                FROM basevehicle
+                JOIN make ON basevehicle.MakeID = make.MakeID
+                JOIN model ON basevehicle.ModelID = model.ModelID
+                JOIN vehicletype ON model.VehicleTypeID = vehicletype.VehicleTypeID
+                WHERE basevehicle.YearID = ? AND vehicletype.VehicleTypeGroupID = ?
+                GROUP BY make.MakeID, make.MakeName)
+                UNION
+                (SELECT makeID AS MakeID, make
+                FROM {$this->pg_db}.{$seoTable}
+                WHERE year = ?
+                GROUP BY makeID, make)
+                ORDER BY make ASC",
+                [$yearVal, $vehicletypeid, $yearVal]
+            );
+        } else {
+            $results = DB::connection(self::$aces_vcdb)
+                ->table('basevehicle')
+                ->join('make', 'basevehicle.MakeID', '=', 'make.MakeID')
+                ->join('model', 'basevehicle.ModelID', '=', 'model.ModelID')
+                ->join('vehicletype', 'model.VehicleTypeID', '=', 'vehicletype.VehicleTypeID')
+                ->select('make.MakeID as MakeID', 'make.MakeName as make')
+                ->where('vehicletype.VehicleTypeGroupID', $vehicletypeid)
+                ->where('basevehicle.YearID', $yearVal)
+                ->groupBy('make.MakeID', 'make.MakeName')
+                ->orderBy('make.MakeName', 'ASC')
+                ->get();
+        }
+
+        return $results;
+    }
+
+    public function getmodelsBK(Request $request, $vehicletypeid, $yearVal, $makeVal, $projectname=null)
     {
 
 
@@ -163,6 +229,49 @@ class ClassicSearchController extends Controller
         return $results;
 
     }
+
+    public function getmodels(Request $request, $vehicletypeid, $yearVal, $makeVal, $projectname = null)
+    {
+        $vehicletypeid = (int) $vehicletypeid;
+        $yearVal = (int) $yearVal;
+        $makeVal = (int) $makeVal;
+        $next_year = $this->current_year + 1;
+        $isRecentYear = in_array($yearVal, [$this->current_year, $next_year], true);
+
+        if ($isRecentYear && in_array($projectname, ['pureflow', 'highflow'], true)) {
+            $seoTable = $projectname === 'pureflow' ? 'applications_pureflow_seo' : 'applications_highflow_seo';
+            $results = DB::connection(self::$aces_vcdb)->select(
+                "(SELECT model.ModelName AS model, basevehicle.BaseVehicleID
+                FROM basevehicle
+                JOIN model ON basevehicle.ModelID = model.ModelID
+                JOIN vehicletype ON model.VehicleTypeID = vehicletype.VehicleTypeID
+                WHERE vehicletype.VehicleTypeGroupID = ? AND basevehicle.YearID = ? AND basevehicle.MakeID = ?
+                GROUP BY model.ModelID, model.ModelName, basevehicle.BaseVehicleID)
+                UNION
+                (SELECT model, BaseVehicleID
+                FROM {$this->pg_db}.{$seoTable}
+                WHERE year = ? AND makeID = ?
+                GROUP BY model, BaseVehicleID)
+                ORDER BY model ASC",
+                [$vehicletypeid, $yearVal, $makeVal, $yearVal, $makeVal]
+            );
+        } else {
+            $results = DB::connection(self::$aces_vcdb)
+                ->table('basevehicle')
+                ->join('model', 'basevehicle.ModelID', '=', 'model.ModelID')
+                ->join('vehicletype', 'model.VehicleTypeID', '=', 'vehicletype.VehicleTypeID')
+                ->select('model.ModelName as model', 'basevehicle.BaseVehicleID')
+                ->where('vehicletype.VehicleTypeGroupID', $vehicletypeid)
+                ->where('basevehicle.YearID', $yearVal)
+                ->where('basevehicle.MakeID', $makeVal)
+                ->groupBy('model.ModelName', 'basevehicle.BaseVehicleID')
+                ->orderBy('model.ModelName', 'ASC')
+                ->get();
+        }
+
+        return $results;
+    }
+
 
     public function checkforengine(Request $request, $baseVehicleId)
     {
@@ -416,7 +525,7 @@ class ClassicSearchController extends Controller
 
 
     //Product page
-    public function productpage(Request $request, $partNumber)
+    public function productpageBK(Request $request, $partNumber)
     {
         // $product_specs=DB::connection(self::$main_db)
         //                         ->select("SELECT ms.PAName,mp.value,ms.PAID 
@@ -580,22 +689,23 @@ class ClassicSearchController extends Controller
             //     WHEN fileName LIKE '%-K.%' then 19 WHEN fileName LIKE '%-I.%' then 20
             //     ELSE 21 END");
             ->select(
-                DB::raw("SELECT img_id,pni.partNumber,fileName from image_mapper im
+                "SELECT img_id, pni.partNumber, fileName FROM image_mapper im
                 JOIN partNumberInfo pni ON im.part_id = pni.part_id
-                WHERE pni.partNumber = '$partNumber'
+                WHERE pni.partNumber = ?
                 GROUP BY im.fileName
-                ORDER BY CASE 
-                WHEN fileName LIKE '%ZZ2_FRO.%' then 1 WHEN fileName LIKE '%P02_.%' then 2
-                WHEN fileName LIKE '%P04_FRO.%' then 3 WHEN fileName LIKE '%P01_BAC.%' then 4
-                WHEN fileName LIKE '%P01_TOP.%' then 5 WHEN fileName LIKE '%P01_BOT.%' then 6
-                WHEN fileName LIKE '%P01_SID.%' then 7 WHEN fileName LIKE '%P01_LEF.%' then 8
-                WHEN fileName LIKE '%P01_RIG.%' then 9 WHEN fileName LIKE '%P01_ANG.%' then 10
-                WHEN fileName LIKE '%-F.%' then 11 WHEN fileName LIKE '%-E.%' then 12
-                WHEN fileName LIKE '%-A.%' then 13 WHEN fileName LIKE '%-B.%' then 14
-                WHEN fileName LIKE '%-C.%' then 15 WHEN fileName LIKE '%-D.%' then 16
-                WHEN fileName LIKE '%-G.%' then 17 WHEN fileName LIKE '%-H.%' then 18
-                WHEN fileName LIKE '%-K.%' then 19 WHEN fileName LIKE '%-I.%' then 20
-                ELSE 21 END")
+                ORDER BY CASE
+                WHEN fileName LIKE '%ZZ2_FRO.%' THEN 1 WHEN fileName LIKE '%P02_.%' THEN 2
+                WHEN fileName LIKE '%P04_FRO.%' THEN 3 WHEN fileName LIKE '%P01_BAC.%' THEN 4
+                WHEN fileName LIKE '%P01_TOP.%' THEN 5 WHEN fileName LIKE '%P01_BOT.%' THEN 6
+                WHEN fileName LIKE '%P01_SID.%' THEN 7 WHEN fileName LIKE '%P01_LEF.%' THEN 8
+                WHEN fileName LIKE '%P01_RIG.%' THEN 9 WHEN fileName LIKE '%P01_ANG.%' THEN 10
+                WHEN fileName LIKE '%-F.%' THEN 11 WHEN fileName LIKE '%-E.%' THEN 12
+                WHEN fileName LIKE '%-A.%' THEN 13 WHEN fileName LIKE '%-B.%' THEN 14
+                WHEN fileName LIKE '%-C.%' THEN 15 WHEN fileName LIKE '%-D.%' THEN 16
+                WHEN fileName LIKE '%-G.%' THEN 17 WHEN fileName LIKE '%-H.%' THEN 18
+                WHEN fileName LIKE '%-K.%' THEN 19 WHEN fileName LIKE '%-I.%' THEN 20
+                ELSE 21 END",
+                [$partNumber]
             );
 
         // if(!empty($imageInfo)) {
@@ -655,6 +765,235 @@ class ClassicSearchController extends Controller
 
         return json_encode($results);
     }
+
+    public function productpage(Request $request, $partNumber)
+    {
+        set_time_limit(0);
+        $partNumber = trim($partNumber ?? '');
+        if ($partNumber === '') {
+            return response()->json(['product_specs' => [], 'imageInfo' => [], 'package' => [], 'installation_instructions' => [], 'product_bulletins' => []]);
+        }
+
+        $product_specs = DB::connection(self::$main_db)->select(
+            "SELECT ms.PAName, mp.value, ms.PAID
+            FROM part_attributes_mapper mp
+            LEFT JOIN part_attributes_master ms ON ms.PAID = mp.PAID
+            JOIN partNumberInfo pni ON mp.part_id = pni.part_id
+            WHERE pni.partNumber = ?
+            GROUP BY ms.PAName, mp.value, ms.PAID
+            ORDER BY FIELD(ms.PAName,'Shape','Gasket Material','Anti-Drain Back Valve',
+                'Thread Size','Bypass Relief Valve','Burst Pressure','Micron Rating',
+                'Gasket Thickness','Gasket Outside Diameter','Gasket Inside Diameter',
+                'Outside Diameter','Height','Width','Length','Side C Length','Side B Length','Side A Length') DESC",
+            [$partNumber]
+        );
+
+        $PAID = [14, 19, 24, 25, 31, 522, 531, 534, 568, 569, 570, 576, 577, 578, 579, 1908, 1172, 9035, 9036];
+        $flag_height = 0;
+
+        if (!empty($product_specs)) {
+
+            foreach ($product_specs as $product_specs1) {
+
+                if ($product_specs1->PAID == 19 && $flag_height == 1) {
+                    continue;
+                }
+
+                $spec_value1 = '';
+                $spec_value1 = strtoupper($product_specs1->value);
+
+                //e.g 6.31 IN , 6.31IN
+                if (preg_match('/^(\d+\.?\d*)IN$/', $spec_value1) == true || preg_match('/^(\d+\.?\d*) IN$/', $spec_value1) == true) {
+                    $spec_value = str_replace('IN', '', $spec_value1);
+
+                } else {
+                    $spec_value = $product_specs1->value;
+                }
+
+
+
+                if (in_array($product_specs1->PAID, $PAID) && strpos($spec_value1, '/min') === false) {
+                    $reg_line = false;
+                    $reg_line = preg_match('/[|,±?\/]/', $spec_value); // check if | , / present in string
+                    if (strpos($spec_value1, 'MM') == true && strpos($spec_value1, 'IN') == false) {
+
+                        if (!$reg_line) {
+                            $split_value_MM = explode("MM", $product_specs1->value);
+                            $spec_value = trim($split_value_MM[0]);
+
+                            if (is_numeric($spec_value)) {
+                                $spec_value = $spec_value / 25.4; //convert mm value to inch
+                            }
+                        } elseif ($reg_line) {
+
+
+                            $components = preg_split('/[|,±?\/]/', $spec_value);
+
+                            if (count($components) > 0 && $components[0] != $spec_value) {
+                                if (strpos($spec_value1, '±') !== false) {
+                                    $spec_value = $components[0];
+                                    if (is_numeric($spec_value)) {
+                                        $spec_value = $spec_value / 25.4;
+                                        $spec_value = round($spec_value, 2);
+                                    } else {
+                                        $spec_value = round($components[0], 2);
+                                    }
+                                } else {
+                                    $spec_value = round($components[0], 2);
+                                }
+
+                            }
+                        }
+                    } elseif (strpos($spec_value1, 'IN') !== false) {
+                        $spec_value = str_replace('IN', '', $spec_value1);
+                        if ($reg_line) {
+
+                            $components = preg_split('/[|,±?\/]/', $spec_value);
+
+                            if (count($components) > 0 && $components[0] != $spec_value) {
+                                $spec_value = round($components[0], 2);
+                            }
+                        }
+                    } else {
+                        if ($reg_line) {
+
+                            $components = preg_split('/[|,±?\/]/', $spec_value);
+
+                            if (count($components) > 0 && $components[0] != $spec_value) {
+                                $spec_value = round($components[0], 2);
+                            }
+                        }
+                    }
+
+                }
+
+                $split_value_PAID = "";
+                if ($product_specs1->PAID == 627 || $product_specs1->PAID == -627) {
+                    if (strpos($spec_value, 'KG') !== false) {
+                        $split_value_PAID = explode(" KG", $spec_value);
+                        $split_value_PAID[0] = round($split_value_PAID[0], 2);
+                        $spec_value = $split_value_PAID[0] * 2.205;
+                        $spec_value = round($spec_value, 2);
+                        $spec_value = $spec_value . " LBS";
+                    } elseif (strpos($spec_value, 'PG') !== false) {
+                        $split_value_PAID = explode("PG", $spec_value);
+                        $split_value_PAID[0] = round($split_value_PAID[0], 2);
+                        $spec_value = $split_value_PAID[0] * 2.20462E-15;
+                        $spec_value = $spec_value * 1E15;
+                        $spec_value = round($spec_value, 2);
+                        $spec_value = $spec_value . " LBS";
+                    } else {
+                        $spec_value = $spec_value;
+                    }
+                }
+
+
+                if ($product_specs1->PAID == 31) {
+                    $flag_height = 1;
+                }
+                $product_specs1->product_specs_name = $product_specs1->PAName;
+
+
+                //value
+
+                if (in_array($product_specs1->PAID, $PAID) && strpos($spec_value1, '/min') === false) {
+
+                    //if '±' not present in the string and no two '.' present in string
+                    $reg_exp = preg_match('/[a-zA-Z\"\'\/^±£$%&*()}{@#~?><>,|=_+¬-]/', $spec_value);
+                    if (!$reg_exp && substr_count($spec_value, '.') < 2) {
+                        $product_specs1->product_specs_value = round($spec_value, 2);
+                    } else {
+                        $product_specs1->product_specs_value = ucwords(trim($spec_value));
+                    }
+                } else {
+                    $product_specs1->product_specs_value = ucwords(trim($spec_value));
+                }
+            }
+        }
+
+        $results["product_specs"] = $product_specs;
+
+        $imageInfo = DB::connection(self::$main_db)->select(
+            "SELECT img_id, pni.partNumber, fileName FROM image_mapper im
+            JOIN partNumberInfo pni ON im.part_id = pni.part_id
+            WHERE pni.partNumber = ?
+            GROUP BY im.fileName
+            ORDER BY CASE
+                WHEN fileName LIKE '%ZZ2_FRO.%' THEN 1 WHEN fileName LIKE '%P02_.%' THEN 2
+                WHEN fileName LIKE '%P04_FRO.%' THEN 3 WHEN fileName LIKE '%P01_BAC.%' THEN 4
+                WHEN fileName LIKE '%P01_TOP.%' THEN 5 WHEN fileName LIKE '%P01_BOT.%' THEN 6
+                WHEN fileName LIKE '%P01_SID.%' THEN 7 WHEN fileName LIKE '%P01_LEF.%' THEN 8
+                WHEN fileName LIKE '%P01_RIG.%' THEN 9 WHEN fileName LIKE '%P01_ANG.%' THEN 10
+                WHEN fileName LIKE '%-F.%' THEN 11 WHEN fileName LIKE '%-E.%' THEN 12
+                WHEN fileName LIKE '%-A.%' THEN 13 WHEN fileName LIKE '%-B.%' THEN 14
+                WHEN fileName LIKE '%-C.%' THEN 15 WHEN fileName LIKE '%-D.%' THEN 16
+                WHEN fileName LIKE '%-G.%' THEN 17 WHEN fileName LIKE '%-H.%' THEN 18
+                WHEN fileName LIKE '%-K.%' THEN 19 WHEN fileName LIKE '%-I.%' THEN 20
+                ELSE 21 END",
+            [$partNumber]
+        );
+
+        // if(!empty($imageInfo)) {
+
+        //     $image_count=0;
+
+        //     foreach ($imageInfo as $key=>$imageInfo1) {
+
+        //         $remoteFileUrl = $this->image_path.$imageInfo1->fileName;
+
+        //         $options = [
+        //             'http' => [
+        //                 'method' => 'HEAD',
+        //                 'ignore_errors' => true,
+        //             ],
+        //         ];
+        //         $context = stream_context_create($options);
+
+        //         $response = file_get_contents($remoteFileUrl, false, $context);
+
+        //         if ($response !== false) {
+        //             // Check the response status code
+        //             $headers = $http_response_header; // This variable contains the response headers
+        //             $statusCode = explode(' ', $headers[0])[1];
+        //             if ($statusCode === '200') {
+        //                 $image_count++;
+        //             } else {
+        //                 unset($imageInfo[$key]);
+        //             }
+        //         } else {
+        //             unset($imageInfo[$key]);
+        //         }
+
+        //     }
+
+        // }
+        $results["imageInfo"] = array_values($imageInfo);
+
+        $results["package"] = DB::connection(self::$main_db)->select(
+            "SELECT height, width, length, weight FROM package
+            JOIN partNumberInfo pni ON package.part_id = pni.part_id
+            WHERE pni.partNumber = ? GROUP BY pni.partNumber",
+            [$partNumber]
+        );
+
+        $results["installation_instructions"] = DB::connection(self::$main_db)->select(
+            "SELECT pr.resources_path FROM pgfilter_resources pr
+            JOIN pgfilter_resources_mapper prm ON pr.id = prm.resources_mapper_id
+            WHERE prm.resource_partnumber = ? AND pr.resource_type = '4'",
+            [$partNumber]
+        );
+
+        $results["product_bulletins"] = DB::connection(self::$main_db)->select(
+            "SELECT pr.resources_path FROM pgfilter_resources pr
+            JOIN pgfilter_resources_mapper prm ON pr.id = prm.resources_mapper_id
+            JOIN wp_bsk_pdf_manager_pdfs bsk ON pr.resources_path = bsk.file_name
+            WHERE prm.resource_partnumber = ? AND pr.resource_type = '1' AND bsk.trash = '0'",
+            [$partNumber]
+        );
+
+        return response()->json($results);
+    }
+
 
     //Application API
 

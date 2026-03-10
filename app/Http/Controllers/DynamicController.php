@@ -22,7 +22,7 @@ class DynamicController extends Controller
         $this->pg_db = Config::get('constants.pg_dbname');
     }
 
-    public function index(Request $request,$searchterm)
+    public function indexBK(Request $request,$searchterm)
     {
         $products = [];
         $search_length = strlen($searchterm);
@@ -149,6 +149,86 @@ class DynamicController extends Controller
         unset($premium);
 
         return json_encode($products);
+    }
+
+    public function index(Request $request, $searchterm)
+    {
+        $products = [];
+        $searchterm = trim($searchterm ?? '');
+        $search_length = strlen($searchterm);
+        $pattern = '/^[a-zA-Z0-9\-_.*\/\s]+$/';
+
+        if (!preg_match($pattern, $searchterm) || $search_length > 30) {
+            return response()->json($products);
+        }
+
+        $partnumber = DB::connection(self::$main_db)->select(
+            "SELECT 'partnumber' as id, p.partNumber as label, CONCAT(pm.partTypename, '===', p.PartTerminologyID) as value
+            FROM partNumberInfo p
+            JOIN parttype_master pm ON pm.PartTerminologyID = p.PartTerminologyID
+            WHERE p.partNumber LIKE ? AND p.partNumber NOT IN ('NRC','NSC','NRA','NSA','NRO','NSO','NRF','NSF','NRT','NST','TBA','NR')
+            GROUP BY p.partNumber",
+            ['%' . $searchterm . '%']
+        );
+
+        if (!empty($partnumber)) {
+            $products[] = (object) ['id' => 'label', 'label' => 'Part Numbers'];
+            $products = array_merge($products, $partnumber);
+        }
+
+        $searchname_appl = str_replace('-', '', $searchterm);
+        $words = array_filter(explode(' ', $searchname_appl));
+        $pro = [];
+
+        if (!empty($words)) {
+            $appl_conditions = implode(' AND ', array_fill(0, count($words), "REPLACE(dsf.YMME_Concatenated,'-','') LIKE ?"));
+            $appl_bindings = array_map(fn($w) => '%' . $w . '%', $words);
+
+            $pro = DB::connection(self::$aces_vcdb)->select(
+            "SELECT STRAIGHT_JOIN CONCAT(bv.YearID, '!', bv.MakeID, '!', bv.ModelID, '!', GROUP_CONCAT(DISTINCT eb.EngineBaseID)) as id,
+                CONCAT(CAST(bv.YearID AS char), ' ', TRIM(ma.MakeName), ' ', TRIM(mo.ModelName), ' ', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(eb.Liter),'-'), 'L'))) as label,
+                CONCAT(dsf.BaseVehicleID, '===', CAST(bv.YearID AS char), '!', TRIM(ma.MakeName), '!', TRIM(mo.ModelName), '!', CONCAT_WS(' ', CONCAT(NULLIF(TRIM(eb.Liter),'-'), 'L'))) as value
+            FROM {$this->pg_db}.pgi_web_dynamic_search_flat dsf
+            JOIN basevehicle bv ON dsf.BaseVehicleID = bv.BaseVehicleID
+            JOIN make ma ON bv.MakeID = ma.MakeID
+            JOIN model mo ON bv.ModelID = mo.ModelID
+            JOIN engineconfig ec ON dsf.EngineConfigID = ec.EngineConfigID
+            JOIN enginebase eb ON ec.EngineBaseID = eb.EngineBaseID
+            LEFT JOIN {$this->pg_db}.fueltype_web_display_mappings ft ON ec.FuelTypeID = ft.FuelTypeID
+            WHERE {$appl_conditions}
+            GROUP BY CAST(bv.YearID AS char), TRIM(ma.MakeName), TRIM(mo.ModelName), CONCAT_WS(' ', CONCAT(NULLIF(TRIM(eb.Liter),'-'), 'L'))
+            ORDER BY CAST(bv.YearID AS char) DESC",
+                $appl_bindings
+            );
+        }
+
+        if (!empty($pro)) {
+            $products[] = (object) ['id' => 'label', 'label' => 'Applications'];
+            $products = array_merge($products, $pro);
+            if ($search_length <= 3) {
+                return response()->json($products);
+            }
+        }
+
+        $searchterm_normalized = str_replace(['-', ' ', '/', '*', '_'], '', $searchterm);
+        $premium = DB::connection(self::$main_db)->select(
+            "SELECT 'partintnumber' as id, CONCAT(pm.partIntPartNumber, ' ', i.BrandName) as label, CONCAT(pm.partIntPartNumber, '===', i.id) as value
+            FROM partInterchange_mapper pm
+            JOIN Interchangename_brandcode_mapper i ON pm.partIntBrandID = i.BrandID AND pm.partIntSubBrandID <=> i.SubBrandID
+            JOIN partNumberInfo pni ON pni.part_id = pm.part_id
+            JOIN parttype_master ptm ON ptm.PartTerminologyID = pni.PartTerminologyID
+            WHERE pni.partNumber NOT IN ('NRC','NSC','NRA','NSA','NRO','NSO','NRF','NSF','NRT','NST','TBA','NR')
+            AND REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(pm.partIntPartNumber,'-',''),'*',''),' ',''),'_',''),'/','') LIKE ?
+            GROUP BY pm.partIntPartNumber, i.BrandName",
+            ['%' . $searchterm_normalized . '%']
+        );
+
+        if (!empty($premium)) {
+            $products[] = (object) ['id' => 'label', 'label' => 'Competitors Interchanges'];
+            $products = array_merge($products, $premium);
+        }
+
+        return response()->json($products);
     }
 
 
@@ -335,7 +415,7 @@ class DynamicController extends Controller
         return json_encode($superseded);
     }
 
-    public function vinsearch(Request $request,$vinsearch)
+    public function vinsearchBK(Request $request,$vinsearch)
     {
         
         $response_data='{"res":"nodata"}';
@@ -435,6 +515,75 @@ class DynamicController extends Controller
         }
 
         return $response_data;
+    }
+
+    public function vinsearch(Request $request, $vinsearch)
+    {
+        $vin = trim($vinsearch ?? '');
+        $response = ['res' => 'nodata'];
+
+        if ($vin === '') {
+            return response()->json($response);
+        }
+
+        $vinConfig = config('services.vin_api');
+        if (empty($vinConfig['username']) || empty($vinConfig['password'])) {
+            Log::error('VIN API credentials not configured');
+            return response()->json($response);
+        }
+
+        try {
+            $client = new Client();
+            $baseUrl = rtrim($vinConfig['url'], '/');
+
+            $authResponse = $client->request('POST', $baseUrl . '/okta', [
+                'headers' => [
+                    'username' => $vinConfig['username'],
+                    'password' => $vinConfig['password'],
+                ],
+            ]);
+
+            $data = json_decode($authResponse->getBody()->getContents(), true);
+            $accessToken = $data['access_token'] ?? '';
+
+            if ($accessToken === '') {
+                return response()->json($response);
+            }
+
+            $decodeResponse = $client->request('POST', $baseUrl . '/vintelligence/decodeVin', [
+                'json' => [
+                    'requiredFieldsCSVs' => '',
+                    'vinRequests' => [
+                        ['make' => '', 'trim' => '', 'vin' => $vin, 'year' => ''],
+                    ],
+                ],
+                'headers' => ['accesstoken' => $accessToken],
+            ]);
+
+            $vindata = json_decode($decodeResponse->getBody()->getContents());
+            $finalresult = $vindata[0] ?? null;
+
+            if ($finalresult && ($finalresult->returnCode ?? '') === '0' && !empty($finalresult->fields)) {
+                $get_data = [];
+
+                foreach ($finalresult->fields as $field) {
+                    $name = $field->name ?? '';
+                    if (str_contains($name, 'ACES_BASE_VEHICLE') || str_contains($name, 'ACES_ENGINE_BASE_ID')) {
+                        $get_data[] = $field->value ?? '';
+                    } elseif (preg_match('/ACES_YEAR_ID|ACES_MAKE_NAME|ACES_MODEL_NAME|ACES_LITERS/', $name)) {
+                        $get_data[] = $field->value ?? '';
+                    }
+                }
+
+                if (!empty($get_data)) {
+                    $response['res'] = implode(',', $get_data);
+                }
+            }
+        } catch (Exception $e) {
+            Log::error('VIN decode error: ' . $e->getMessage());
+        }
+
+        return response()->json($response);
     }
 
     public function vinsearchMobikasa(Request $request,$vinsearch)

@@ -11,16 +11,25 @@ use Config;
 
 class ProductListController extends Controller
 {
-
     public static $aces_vcdb = 'mysql_aces';
     public static $main_db = 'mysql';
     protected $pg_db;
+
+    private const QUALIFIER_COLUMNS = [
+        'AspirationID', 'BedLengthID', 'BedTypeID', 'BodyNumDoorsID', 'BodyTypeID', 'BrakeABSID', 'BrakeSystemID',
+        'CylinderHeadTypeID', 'DriveTypeID', 'EngineDesignationID', 'EngineMfrID', 'EngineVersionID', 'EngineVINID',
+        'FrontBrakeTypeID', 'FrontSpringTypeID', 'FuelDeliverySubTypeID', 'FuelDeliveryTypeID', 'FuelSystemControlTypeID',
+        'FuelSystemDesignID', 'FuelTypeID', 'IgnitionSystemTypeID', 'MfrBodyCodeID', 'PowerOutputID', 'RearBrakeTypeID',
+        'RearSpringTypeID', 'RegionID', 'SteeringSystemID', 'SteeringTypeID', 'SubModelID', 'TransElecControlledID',
+        'TransmissionControlTypeID', 'TransmissionMfrCodeID', 'TransmissionMfrID', 'TransmissionNumSpeedsID',
+        'TransmissionTypeID', 'ValvesPerEngineID', 'WheelBaseID',
+    ];
 
     public function __construct() {
         $this->pg_db = Config::get('constants.pg_dbname');
     }
     
-    public function productlist(Request $request,$baseVehicleId,$engineId,$qualifier_id,$qualifier_name) {
+    public function productlistBK(Request $request,$baseVehicleId,$engineId,$qualifier_id,$qualifier_name) {
 
         $store_upcoming = [];
         $store_upcoming_name = [];
@@ -170,6 +179,98 @@ class ProductListController extends Controller
 
 
         return json_encode($results);
+    }
+
+    public function productlist(Request $request, $baseVehicleId, $engineId, $qualifier_id, $qualifier_name)
+    {
+        $baseVehicleId = (int) $baseVehicleId;
+        $engineId = implode(',', array_map('intval', explode(',', $engineId ?? '')));
+
+        $store_upcoming = array_values(array_unique(explode(',', $qualifier_id ?? '')));
+        $store_upcoming_name = array_values(array_unique(explode(',', urldecode($qualifier_name ?? ''))));
+
+        if (!empty($store_upcoming_name) && reset($store_upcoming_name) === 'noqualifier') {
+            $store_upcoming_name = [];
+        }
+
+        $qualifierlist = '';
+        $qualifierspe = '';
+        $firstQualifier = reset($store_upcoming);
+
+        if ($firstQualifier && $firstQualifier !== 'noqualifier') {
+            $where_clause = [];
+            $prevqualifier = [];
+            foreach ($store_upcoming as $value) {
+                $qual = explode(':', $value);
+                if (isset($qual[0], $qual[1]) && in_array($qual[0], self::QUALIFIER_COLUMNS, true)) {
+                    $col = $qual[0];
+                    $id = (int) $qual[1];
+                    $where_clause[] = " and (a.{$col}={$id} OR a.{$col} IS NULL)";
+                    $prevqualifier[] = "GROUP_CONCAT(CONCAT('{$col}:', IFNULL(a.{$col},'')))";
+                }
+            }
+            if (!empty($where_clause)) {
+                $qualifierlist = implode('', $where_clause);
+                $qualifierspe = ',CONCAT_WS(\',\',' . implode(',', $prevqualifier) . ') as f';
+            }
+        }
+
+        $imageSubquery = 'LEFT JOIN ( SELECT part_id, SUBSTRING_INDEX(GROUP_CONCAT(fileName ORDER BY img_id), ",", 1) as fileName FROM image_mapper GROUP BY part_id ) im ON p.part_id = im.part_id ';
+        $partImageSelect = ', MAX(im.fileName) as part_image ';
+        $results = [];
+
+        $partTypeArray = DB::connection(self::$main_db)
+                        ->select("SELECT DISTINCT(p.partNumber),CONCAT_WS(',',GROUP_CONCAT(CONCAT('FuelTypeID:', IFNULL(a.FuelTypeID,''))),GROUP_CONCAT(CONCAT('AspirationID:', IFNULL(a.AspirationID,''))),GROUP_CONCAT(CONCAT('DriveTypeID:', IFNULL(a.DriveTypeID,''))),GROUP_CONCAT(CONCAT('EngineVINID:', IFNULL(a.EngineVINID,''))),GROUP_CONCAT(CONCAT('EngineDesignationID:', IFNULL(a.EngineDesignationID,''))),GROUP_CONCAT(CONCAT('CylinderHeadTypeID:', IFNULL(a.CylinderHeadTypeID,''))),GROUP_CONCAT(CONCAT('SubModelID:', IFNULL(a.SubModelID,''))),GROUP_CONCAT(CONCAT('TransmissionControlTypeID:', IFNULL(a.TransmissionControlTypeID,''))),GROUP_CONCAT(CONCAT('TransmissionNumSpeedsID:', IFNULL(a.TransmissionNumSpeedsID,''))),GROUP_CONCAT(CONCAT('ValvesPerEngineID:', IFNULL(a.ValvesPerEngineID,''))),GROUP_CONCAT(CONCAT('FuelDeliveryTypeID:', IFNULL(a.FuelDeliveryTypeID,''))),GROUP_CONCAT(CONCAT('BedTypeID:', IFNULL(a.BedTypeID,''))),GROUP_CONCAT(CONCAT('BodyNumDoorsID:', IFNULL(a.BodyNumDoorsID,''))),GROUP_CONCAT(CONCAT('EngineMfrID:', IFNULL(a.EngineMfrID,''))),GROUP_CONCAT(CONCAT('FuelDeliverySubTypeID:', IFNULL(a.FuelDeliverySubTypeID,''))),GROUP_CONCAT(CONCAT('FuelSystemControlTypeID:', IFNULL(a.FuelSystemControlTypeID,''))),GROUP_CONCAT(CONCAT('FuelSystemDesignID:', IFNULL(a.FuelSystemDesignID,''))),GROUP_CONCAT(CONCAT('SteeringTypeID:', IFNULL(a.SteeringTypeID,''))),GROUP_CONCAT(CONCAT('TransmissionTypeID:', IFNULL(a.TransmissionTypeID,''))),GROUP_CONCAT(CONCAT('BedLengthID:', IFNULL(a.BedLengthID,''))),GROUP_CONCAT(CONCAT('BodyTypeID:', IFNULL(a.BodyTypeID,''))),GROUP_CONCAT(CONCAT('BrakeABSID:', IFNULL(a.BrakeABSID,''))),GROUP_CONCAT(CONCAT('BrakeSystemID:', IFNULL(a.BrakeSystemID,''))),GROUP_CONCAT(CONCAT('EngineVersionID:', IFNULL(a.EngineVersionID,''))),GROUP_CONCAT(CONCAT('FrontBrakeTypeID:', IFNULL(a.FrontBrakeTypeID,''))),GROUP_CONCAT(CONCAT('FrontSpringTypeID:', IFNULL(a.FrontSpringTypeID,''))),GROUP_CONCAT(CONCAT('IgnitionSystemTypeID:', IFNULL(a.IgnitionSystemTypeID,''))),GROUP_CONCAT(CONCAT('MfrBodyCodeID:', IFNULL(a.MfrBodyCodeID,''))),GROUP_CONCAT(CONCAT('PowerOutputID:', IFNULL(a.PowerOutputID,''))),GROUP_CONCAT(CONCAT('RearBrakeTypeID:', IFNULL(a.RearBrakeTypeID,''))),GROUP_CONCAT(CONCAT('RearSpringTypeID:', IFNULL(a.RearSpringTypeID,''))),GROUP_CONCAT(CONCAT('RegionID:', IFNULL(a.RegionID,''))),GROUP_CONCAT(CONCAT('SteeringSystemID:', IFNULL(a.SteeringSystemID,''))),GROUP_CONCAT(CONCAT('TransElecControlledID:', IFNULL(a.TransElecControlledID,''))),GROUP_CONCAT(CONCAT('TransmissionMfrID:', IFNULL(a.TransmissionMfrID,''))),GROUP_CONCAT(CONCAT('TransmissionMfrCodeID:', IFNULL(a.TransmissionMfrCodeID,''))),GROUP_CONCAT(CONCAT('WheelBaseID:', IFNULL(a.WheelBaseID,'')))) as q,p.PartTerminologyID as partType,pm.partTypename,GROUP_CONCAT(DISTINCT a.note SEPARATOR '; ') as note_merged,a.note,a.BaseVehicleID,a.EngineBaseID $qualifierspe $partImageSelect
+                        FROM partNumberInfo p LEFT JOIN applications a ON p.part_id=a.part_id 
+                        $imageSubquery
+                        JOIN parttype_master pm ON p.PartTerminologyID=pm.PartTerminologyID 
+                        WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId)".$qualifierlist." AND pm.partCategoryid='1' 
+                        GROUP BY p.partNumber ORDER BY pm.partTypeOrder ASC,q DESC");
+
+
+
+        $results["partTypeArray"] = $this->tranformProductResult($partTypeArray);
+        
+        $CapsAndPlugsArray = DB::connection(self::$main_db)
+                                ->select("SELECT p.partNumber,CONCAT_WS(',',GROUP_CONCAT(CONCAT('FuelTypeID:', IFNULL(a.FuelTypeID,''))),GROUP_CONCAT(CONCAT('AspirationID:', IFNULL(a.AspirationID,''))),GROUP_CONCAT(CONCAT('DriveTypeID:', IFNULL(a.DriveTypeID,''))),GROUP_CONCAT(CONCAT('EngineVINID:', IFNULL(a.EngineVINID,''))),GROUP_CONCAT(CONCAT('EngineDesignationID:', IFNULL(a.EngineDesignationID,''))),GROUP_CONCAT(CONCAT('CylinderHeadTypeID:', IFNULL(a.CylinderHeadTypeID,''))),GROUP_CONCAT(CONCAT('SubModelID:', IFNULL(a.SubModelID,''))),GROUP_CONCAT(CONCAT('TransmissionControlTypeID:', IFNULL(a.TransmissionControlTypeID,''))),GROUP_CONCAT(CONCAT('TransmissionNumSpeedsID:', IFNULL(a.TransmissionNumSpeedsID,''))),GROUP_CONCAT(CONCAT('ValvesPerEngineID:', IFNULL(a.ValvesPerEngineID,''))),GROUP_CONCAT(CONCAT('FuelDeliveryTypeID:', IFNULL(a.FuelDeliveryTypeID,''))),GROUP_CONCAT(CONCAT('BedTypeID:', IFNULL(a.BedTypeID,''))),GROUP_CONCAT(CONCAT('BodyNumDoorsID:', IFNULL(a.BodyNumDoorsID,''))),GROUP_CONCAT(CONCAT('EngineMfrID:', IFNULL(a.EngineMfrID,''))),GROUP_CONCAT(CONCAT('FuelDeliverySubTypeID:', IFNULL(a.FuelDeliverySubTypeID,''))),GROUP_CONCAT(CONCAT('FuelSystemControlTypeID:', IFNULL(a.FuelSystemControlTypeID,''))),GROUP_CONCAT(CONCAT('FuelSystemDesignID:', IFNULL(a.FuelSystemDesignID,''))),GROUP_CONCAT(CONCAT('SteeringTypeID:', IFNULL(a.SteeringTypeID,''))),GROUP_CONCAT(CONCAT('TransmissionTypeID:', IFNULL(a.TransmissionTypeID,''))),GROUP_CONCAT(CONCAT('BedLengthID:', IFNULL(a.BedLengthID,''))),GROUP_CONCAT(CONCAT('BodyTypeID:', IFNULL(a.BodyTypeID,''))),GROUP_CONCAT(CONCAT('BrakeABSID:', IFNULL(a.BrakeABSID,''))),GROUP_CONCAT(CONCAT('BrakeSystemID:', IFNULL(a.BrakeSystemID,''))),GROUP_CONCAT(CONCAT('EngineVersionID:', IFNULL(a.EngineVersionID,''))),GROUP_CONCAT(CONCAT('FrontBrakeTypeID:', IFNULL(a.FrontBrakeTypeID,''))),GROUP_CONCAT(CONCAT('FrontSpringTypeID:', IFNULL(a.FrontSpringTypeID,''))),GROUP_CONCAT(CONCAT('IgnitionSystemTypeID:', IFNULL(a.IgnitionSystemTypeID,''))),GROUP_CONCAT(CONCAT('MfrBodyCodeID:', IFNULL(a.MfrBodyCodeID,''))),GROUP_CONCAT(CONCAT('PowerOutputID:', IFNULL(a.PowerOutputID,''))),GROUP_CONCAT(CONCAT('RearBrakeTypeID:', IFNULL(a.RearBrakeTypeID,''))),GROUP_CONCAT(CONCAT('RearSpringTypeID:', IFNULL(a.RearSpringTypeID,''))),GROUP_CONCAT(CONCAT('RegionID:', IFNULL(a.RegionID,''))),GROUP_CONCAT(CONCAT('SteeringSystemID:', IFNULL(a.SteeringSystemID,''))),GROUP_CONCAT(CONCAT('TransElecControlledID:', IFNULL(a.TransElecControlledID,''))),GROUP_CONCAT(CONCAT('TransmissionMfrID:', IFNULL(a.TransmissionMfrID,''))),GROUP_CONCAT(CONCAT('TransmissionMfrCodeID:', IFNULL(a.TransmissionMfrCodeID,''))),GROUP_CONCAT(CONCAT('WheelBaseID:', IFNULL(a.WheelBaseID,'')))) as q,p.PartTerminologyID as partType,pm.partTypename,GROUP_CONCAT(DISTINCT a.note SEPARATOR '; ') as note_merged,a.note,a.BaseVehicleID,a.EngineBaseID $qualifierspe $partImageSelect
+                                FROM partNumberInfo p LEFT JOIN applications a ON p.part_id=a.part_id 
+                                $imageSubquery
+                                JOIN parttype_master pm ON p.PartTerminologyID=pm.PartTerminologyID 
+                                WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId)".$qualifierlist." AND pm.partCategoryid='2' 
+                                GROUP BY p.partNumber");
+
+        $results["CapsAndPlugsArray"]  = $this->tranformProductResult($CapsAndPlugsArray);
+
+        $WiperBlades = DB::connection(self::$main_db)
+                            ->select("SELECT DISTINCT p.PartTerminologyID as partType,CONCAT_WS(',',GROUP_CONCAT(CONCAT('FuelTypeID:', IFNULL(a.FuelTypeID,''))),GROUP_CONCAT(CONCAT('AspirationID:', IFNULL(a.AspirationID,''))),GROUP_CONCAT(CONCAT('DriveTypeID:', IFNULL(a.DriveTypeID,''))),GROUP_CONCAT(CONCAT('EngineVINID:', IFNULL(a.EngineVINID,''))),GROUP_CONCAT(CONCAT('EngineDesignationID:', IFNULL(a.EngineDesignationID,''))),GROUP_CONCAT(CONCAT('CylinderHeadTypeID:', IFNULL(a.CylinderHeadTypeID,''))),GROUP_CONCAT(CONCAT('SubModelID:', IFNULL(a.SubModelID,''))),GROUP_CONCAT(CONCAT('TransmissionControlTypeID:', IFNULL(a.TransmissionControlTypeID,''))),GROUP_CONCAT(CONCAT('TransmissionNumSpeedsID:', IFNULL(a.TransmissionNumSpeedsID,''))),GROUP_CONCAT(CONCAT('ValvesPerEngineID:', IFNULL(a.ValvesPerEngineID,''))),GROUP_CONCAT(CONCAT('FuelDeliveryTypeID:', IFNULL(a.FuelDeliveryTypeID,''))),GROUP_CONCAT(CONCAT('BedTypeID:', IFNULL(a.BedTypeID,''))),GROUP_CONCAT(CONCAT('BodyNumDoorsID:', IFNULL(a.BodyNumDoorsID,''))),GROUP_CONCAT(CONCAT('EngineMfrID:', IFNULL(a.EngineMfrID,''))),GROUP_CONCAT(CONCAT('FuelDeliverySubTypeID:', IFNULL(a.FuelDeliverySubTypeID,''))),GROUP_CONCAT(CONCAT('FuelSystemControlTypeID:', IFNULL(a.FuelSystemControlTypeID,''))),GROUP_CONCAT(CONCAT('FuelSystemDesignID:', IFNULL(a.FuelSystemDesignID,''))),GROUP_CONCAT(CONCAT('SteeringTypeID:', IFNULL(a.SteeringTypeID,''))),GROUP_CONCAT(CONCAT('TransmissionTypeID:', IFNULL(a.TransmissionTypeID,''))),GROUP_CONCAT(CONCAT('BedLengthID:', IFNULL(a.BedLengthID,''))),GROUP_CONCAT(CONCAT('BodyTypeID:', IFNULL(a.BodyTypeID,''))),GROUP_CONCAT(CONCAT('BrakeABSID:', IFNULL(a.BrakeABSID,''))),GROUP_CONCAT(CONCAT('BrakeSystemID:', IFNULL(a.BrakeSystemID,''))),GROUP_CONCAT(CONCAT('EngineVersionID:', IFNULL(a.EngineVersionID,''))),GROUP_CONCAT(CONCAT('FrontBrakeTypeID:', IFNULL(a.FrontBrakeTypeID,''))),GROUP_CONCAT(CONCAT('FrontSpringTypeID:', IFNULL(a.FrontSpringTypeID,''))),GROUP_CONCAT(CONCAT('IgnitionSystemTypeID:', IFNULL(a.IgnitionSystemTypeID,''))),GROUP_CONCAT(CONCAT('MfrBodyCodeID:', IFNULL(a.MfrBodyCodeID,''))),GROUP_CONCAT(CONCAT('PowerOutputID:', IFNULL(a.PowerOutputID,''))),GROUP_CONCAT(CONCAT('RearBrakeTypeID:', IFNULL(a.RearBrakeTypeID,''))),GROUP_CONCAT(CONCAT('RearSpringTypeID:', IFNULL(a.RearSpringTypeID,''))),GROUP_CONCAT(CONCAT('RegionID:', IFNULL(a.RegionID,''))),GROUP_CONCAT(CONCAT('SteeringSystemID:', IFNULL(a.SteeringSystemID,''))),GROUP_CONCAT(CONCAT('TransElecControlledID:', IFNULL(a.TransElecControlledID,''))),GROUP_CONCAT(CONCAT('TransmissionMfrID:', IFNULL(a.TransmissionMfrID,''))),GROUP_CONCAT(CONCAT('TransmissionMfrCodeID:', IFNULL(a.TransmissionMfrCodeID,''))),GROUP_CONCAT(CONCAT('WheelBaseID:', IFNULL(a.WheelBaseID,'')))) as q,GROUP_CONCAT(DISTINCT a.note SEPARATOR '; ') as note_merged,a.note,p.partNumber,a.BaseVehicleID,a.EngineBaseID,ps.Position as partTypename $partImageSelect
+                            FROM applications a
+                            JOIN positions ps ON a.PositionID = ps.PositionID
+                            JOIN partNumberInfo p ON a.part_id=p.part_id 
+                            $imageSubquery
+                            JOIN parttype_master pm ON p.PartTerminologyID=pm.PartTerminologyID
+                            WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId)".$qualifierlist."  AND pm.partCategoryid='3' 
+                            GROUP by p.partNumber,ps.PositionID
+                            ORDER BY FIELD(ps.PositionID,30,104,22,103) DESC");
+
+        $results["WiperBlades"] = $this->tranformProductResult($WiperBlades);
+
+        $store_fueltyename = DB::connection(self::$aces_vcdb)->table('fueltype')->pluck('FuelTypeName')->toArray();
+        $get_engine_name = array_values(array_intersect(
+            array_map('trim', $store_upcoming_name),
+            $store_fueltyename
+        ));
+
+        $fluidImageJoin = ' LEFT JOIN partNumberInfo pn_fluid ON pn_fluid.partNumber = a.partnumber LEFT JOIN ( SELECT part_id, SUBSTRING_INDEX(GROUP_CONCAT(fileName ORDER BY img_id), ",", 1) as fileName FROM image_mapper GROUP BY part_id ) im_fluid ON pn_fluid.part_id = im_fluid.part_id ';
+        $fluidsBaseQuery = "SELECT DISTINCT a.partnumber,CONCAT_WS(',',GROUP_CONCAT(CONCAT('FuelTypeID:', IFNULL(a.FuelTypeID,''))),GROUP_CONCAT(CONCAT('AspirationID:', IFNULL(a.AspirationID,''))),GROUP_CONCAT(CONCAT('DriveTypeID:', IFNULL(a.DriveTypeID,''))),GROUP_CONCAT(CONCAT('EngineVINID:', IFNULL(a.EngineVINID,''))),GROUP_CONCAT(CONCAT('EngineDesignationID:', IFNULL(a.EngineDesignationID,''))),GROUP_CONCAT(CONCAT('CylinderHeadTypeID:', IFNULL(a.CylinderHeadTypeID,''))),GROUP_CONCAT(CONCAT('SubModelID:', IFNULL(a.SubModelID,''))),GROUP_CONCAT(CONCAT('TransmissionControlTypeID:', IFNULL(a.TransmissionControlTypeID,''))),GROUP_CONCAT(CONCAT('TransmissionNumSpeedsID:', IFNULL(a.TransmissionNumSpeedsID,''))),GROUP_CONCAT(CONCAT('ValvesPerEngineID:', IFNULL(a.ValvesPerEngineID,''))),GROUP_CONCAT(CONCAT('FuelDeliveryTypeID:', IFNULL(a.FuelDeliveryTypeID,''))),GROUP_CONCAT(CONCAT('BedTypeID:', IFNULL(a.BedTypeID,''))),GROUP_CONCAT(CONCAT('BodyNumDoorsID:', IFNULL(a.BodyNumDoorsID,''))),GROUP_CONCAT(CONCAT('EngineMfrID:', IFNULL(a.EngineMfrID,''))),GROUP_CONCAT(CONCAT('FuelDeliverySubTypeID:', IFNULL(a.FuelDeliverySubTypeID,''))),GROUP_CONCAT(CONCAT('FuelSystemControlTypeID:', IFNULL(a.FuelSystemControlTypeID,''))),GROUP_CONCAT(CONCAT('FuelSystemDesignID:', IFNULL(a.FuelSystemDesignID,''))),GROUP_CONCAT(CONCAT('SteeringTypeID:', IFNULL(a.SteeringTypeID,''))),GROUP_CONCAT(CONCAT('TransmissionTypeID:', IFNULL(a.TransmissionTypeID,''))),GROUP_CONCAT(CONCAT('BedLengthID:', IFNULL(a.BedLengthID,''))),GROUP_CONCAT(CONCAT('BodyTypeID:', IFNULL(a.BodyTypeID,''))),GROUP_CONCAT(CONCAT('BrakeABSID:', IFNULL(a.BrakeABSID,''))),GROUP_CONCAT(CONCAT('BrakeSystemID:', IFNULL(a.BrakeSystemID,''))),GROUP_CONCAT(CONCAT('EngineVersionID:', IFNULL(a.EngineVersionID,''))),GROUP_CONCAT(CONCAT('FrontBrakeTypeID:', IFNULL(a.FrontBrakeTypeID,''))),GROUP_CONCAT(CONCAT('FrontSpringTypeID:', IFNULL(a.FrontSpringTypeID,''))),GROUP_CONCAT(CONCAT('IgnitionSystemTypeID:', IFNULL(a.IgnitionSystemTypeID,''))),GROUP_CONCAT(CONCAT('MfrBodyCodeID:', IFNULL(a.MfrBodyCodeID,''))),GROUP_CONCAT(CONCAT('PowerOutputID:', IFNULL(a.PowerOutputID,''))),GROUP_CONCAT(CONCAT('RearBrakeTypeID:', IFNULL(a.RearBrakeTypeID,''))),GROUP_CONCAT(CONCAT('RearSpringTypeID:', IFNULL(a.RearSpringTypeID,''))),GROUP_CONCAT(CONCAT('RegionID:', IFNULL(a.RegionID,''))),GROUP_CONCAT(CONCAT('SteeringSystemID:', IFNULL(a.SteeringSystemID,''))),GROUP_CONCAT(CONCAT('TransElecControlledID:', IFNULL(a.TransElecControlledID,''))),GROUP_CONCAT(CONCAT('TransmissionMfrID:', IFNULL(a.TransmissionMfrID,''))),GROUP_CONCAT(CONCAT('TransmissionMfrCodeID:', IFNULL(a.TransmissionMfrCodeID,''))),GROUP_CONCAT(CONCAT('WheelBaseID:', IFNULL(a.WheelBaseID,'')))) as q,GROUP_CONCAT(DISTINCT a.note SEPARATOR '; ') as note_merged,a.note,fm.partTypename,a.partTypeid,a.BaseVehicleID,a.EngineBaseID $qualifierspe , MAX(im_fluid.fileName) as part_image FROM `applications3` a JOIN `fluids_parttype_master` fm ON a.partTypeid=fm.partTypeid $fluidImageJoin WHERE a.BaseVehicleID=$baseVehicleId AND a.EngineBaseID IN($engineId)".$qualifierlist;
+
+        if (!empty($get_engine_name)) {
+            $likeConditions = array_map(fn($n) => "a.engine LIKE '%" . addslashes($n) . "%'", $get_engine_name);
+            $results["Fluids"] = DB::connection(self::$main_db)->select($fluidsBaseQuery . " AND (" . implode(' OR ', $likeConditions) . ") GROUP BY a.partnumber,fm.partTypename ORDER BY fm.partTypename");
+        } else {
+            $results["Fluids"] = DB::connection(self::$main_db)->select($fluidsBaseQuery . " GROUP BY a.partnumber,fm.partTypename ORDER BY fm.partTypename");
+        }
+
+        return response()->json($results);
     }
 
 

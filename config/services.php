@@ -33,4 +33,10 @@ return [
 
     'api_key' => env('MOBILE_APP_API_KEY'),
 
+    'vin_api' => [
+        'url' => env('VIN_API_URL', 'https://vintelligence.spglobal.com'),
+        'username' => env('VIN_API_USERNAME'),
+        'password' => env('VIN_API_PASSWORD'),
+    ],
+
 ];
