@@ -36,13 +36,6 @@ class ProductCompController extends Controller {
                                 ->selectRaw('DISTINCT(YearID) as year')
                                 ->orderBy('year','DESC')
                                 ->get();
-
-        // $products["parttypes"] = DB::connection(self::$main_db)
-                                // ->select("SELECT CASE WHEN partTypeid = 1 THEN 'Oil Filter' WHEN partTypeid = 14 THEN 'Housing Cap' WHEN partTypeid = 10 THEN 'Drain Plug' ELSE partTypename END AS partTypename 
-                                // FROM parttype_master WHERE partTypeid IN(1,2,3,4,5,8,10,14) ORDER BY FIELD(partTypeid,1,2,3,4,5,14,10,8)");
-                                // ->select("SELECT CASE WHEN PartTerminologyID = 1 THEN 'Oil Filter' WHEN PartTerminologyID = 14 THEN 'Housing Cap' WHEN PartTerminologyID = 10 THEN 'Drain Plug' ELSE partTypename END AS partTypename 
-                                // FROM parttype_master WHERE PartTerminologyID IN(1,2,3,4,5,8,10,14) ORDER BY FIELD(PartTerminologyID,1,2,3,4,5,14,10,8)");
-
         $partTypeNames = [
             "Oil Filter",
             "Air Filter",
@@ -58,10 +51,10 @@ class ProductCompController extends Controller {
             return (object)['partTypename' => $name];
         }, $partTypeNames);
         
-        return json_encode($products);
+        return response()->json($products);
     }
 
-    public function all_products(Request $request)  {
+    public function all_productsBK(Request $request)  {
        
         $data = $request->all();
 
@@ -375,8 +368,280 @@ class ProductCompController extends Controller {
         }
     }
 
+    public function all_products(Request $request)
+    {
+        $data = $request->all();
+        $product_type = $data['parttype'] ?? '';
+        $fromyear = isset($data['fromyear']) ? (int) $data['fromyear'] : 0;
+        $toyear = isset($data['toyear']) ? (int) $data['toyear'] : 0;
+        $get_hidden_makes = $data['make_selected'] ?? '';
+        $get_hidden_models = $data['model_selected'] ?? '';
+        $get_hidden_partnumbers = $data['partnumbers_selected'] ?? '';
 
-    public function all_makemodel(Request $request) {
+        $partTypeCodeArray = [
+            'Oil Filter' => [5340], 'Air Filter' => [6192], 'Cabin Air Filter' => [6832],
+            'Fuel Filter' => [6200, 6216], 'Transmission Filter' => [8600, 10964],
+            'Housing Cap' => [54048], 'Drain Plug' => [5560, 5428], 'Wiper Blade' => [8852, 11713, 47330]
+        ];
+        $partTypesIds = [
+            'Oil Filter' => 1, 'Air Filter' => 2, 'Cabin Air Filter' => 3, 'Fuel Filter' => 4,
+            'Transmission Filter' => 5, 'Housing Cap' => 6, 'Drain Plug' => 7, 'Wiper Blade' => 8
+        ];
+        $PAID = [14, 19, 24, 25, 31, 522, 531, 534, 568, 569, 570, 576, 577, 578, 579, 1908, 1172, 9035, 9036];
+
+        if ($product_type === '' || !isset($partTypeCodeArray[$product_type])) {
+            return response()->json([]);
+        }
+
+        $whereClauses = ['p.PartTerminologyID IN (' . implode(',', array_map('intval', $partTypeCodeArray[$product_type])) . ')'];
+        $bindings = [];
+
+        if ($fromyear > 0 && $toyear > 0) {
+            $whereClauses[] = 'a.YearID BETWEEN ? AND ?';
+            $bindings[] = $fromyear;
+            $bindings[] = $toyear;
+        }
+        if ($get_hidden_makes !== '') {
+            $makeIds = array_filter(array_map('intval', explode(',', $get_hidden_makes)));
+            if (!empty($makeIds)) {
+                $whereClauses[] = 'a.MakeID IN (' . implode(',', array_fill(0, count($makeIds), '?')) . ')';
+                $bindings = array_merge($bindings, $makeIds);
+            }
+        }
+        if ($get_hidden_models !== '') {
+            $modelIds = array_filter(array_map('intval', explode(',', $get_hidden_models)));
+            if (!empty($modelIds)) {
+                $whereClauses[] = 'a.ModelID IN (' . implode(',', array_fill(0, count($modelIds), '?')) . ')';
+                $bindings = array_merge($bindings, $modelIds);
+            }
+        }
+        if ($get_hidden_partnumbers !== '') {
+            $partNumbers = array_map('trim', array_filter(explode(',', $get_hidden_partnumbers)));
+            if (!empty($partNumbers)) {
+                $whereClauses[] = 'p.partNumber IN (' . implode(',', array_fill(0, count($partNumbers), '?')) . ')';
+                $bindings = array_merge($bindings, $partNumbers);
+            }
+        }
+
+        $whereClauses[] = "p.partNumber NOT LIKE 'MG%'";
+        $whereClauses[] = "p.partNumber NOT IN ('NRC','NSC','NRA','NSA','NRO','NSO','NRF','NSF','NRT','NST','TBA','NR')";
+        $whereSql = implode(' AND ', $whereClauses);
+
+        $products_result = DB::connection(self::$main_db)->select(
+            "SELECT p.partNumber as partnumber, a.YearID AS year, TRIM(ma.MakeName) AS make, TRIM(mo.ModelName) AS model, p.PartTerminologyID as partType
+            FROM applications a
+            JOIN {$this->pg_secdb}.make ma ON a.MakeID = ma.MakeID
+            JOIN {$this->pg_secdb}.model mo ON a.ModelID = mo.ModelID
+            JOIN partNumberInfo p ON a.part_id = p.part_id
+            WHERE $whereSql
+            GROUP BY p.partNumber
+            ORDER BY (SELECT count(DISTINCT ms.PAName) as c FROM part_attributes_mapper mp JOIN part_attributes_master ms ON mp.PAID = ms.PAID WHERE mp.part_id = p.part_id GROUP BY p.partNumber) DESC,
+            CAST(digits(p.partNumber) as UNSIGNED) DESC",
+            $bindings
+        );
+
+        $flag_height = 0;
+            
+            foreach ($products_result as $products_result1) {
+
+                    $ids_part = $partTypesIds[$product_type];
+
+                    $part=$products_result1->partnumber;
+                    $ptypefordis=substr($part,0,2);
+                    $partT=strtoupper($ptypefordis);
+                    if($partT=="DF"){
+                        $products_result1->partTypeName ="Diesel-Fuel-Filter";
+                    }else{
+                        $partTypeName=$product_type;
+                        $products_result1->partTypeName=str_replace(' ', '-',$partTypeName);
+                    }
+
+                   
+                    //image filename query
+                    $productImg = DB::connection(self::$main_db)->select(
+                        "SELECT fileName FROM image_mapper im
+                        JOIN partNumberInfo p ON im.part_id = p.part_id
+                        WHERE p.partNumber = ?
+                        ORDER BY CASE
+                            WHEN fileName LIKE '%ZZ2_FRO.%' THEN 1 WHEN fileName LIKE '%P02_.%' THEN 2
+                            WHEN fileName LIKE '%P04_FRO.%' THEN 3 WHEN fileName LIKE '%P01_BAC.%' THEN 4
+                            WHEN fileName LIKE '%P01_TOP.%' THEN 5 WHEN fileName LIKE '%P01_BOT.%' THEN 6
+                            WHEN fileName LIKE '%P01_SID.%' THEN 7 WHEN fileName LIKE '%P01_LEF.%' THEN 8
+                            WHEN fileName LIKE '%P01_RIG.%' THEN 9 WHEN fileName LIKE '%P01_ANG.%' THEN 10
+                            WHEN fileName LIKE '%-F.%' THEN 11 WHEN fileName LIKE '%-E.%' THEN 12
+                            WHEN fileName LIKE '%-A.%' THEN 13 WHEN fileName LIKE '%-B.%' THEN 14
+                            WHEN fileName LIKE '%-C.%' THEN 15 WHEN fileName LIKE '%-D.%' THEN 16
+                            WHEN fileName LIKE '%-G.%' THEN 17 WHEN fileName LIKE '%-H.%' THEN 18
+                            WHEN fileName LIKE '%-K.%' THEN 19 WHEN fileName LIKE '%-I.%' THEN 20
+                            ELSE 21 END LIMIT 1",
+                        [$part]
+                    );
+
+                    if(count($productImg) > 0) {
+                        
+                        $products_result1->imagePath = $this->image_path.$productImg[0]->fileName;
+                        
+                    }
+                    else {
+                        
+                        if($ids_part=="6") {
+                            $products_result1->imagePath = $this->default_path.'PgFilterLookupOILCAP.png';
+                        }
+                        else if($ids_part=="7") {
+                            $products_result1->imagePath = $this->default_path.'PgFilterLookupDRAINPLUG.png';
+                        }
+                        else if($ids_part=="8") {
+                            $products_result1->imagePath = $this->default_path.'PgFilterLookupREARWIPER.png';
+                        }
+                        else {
+                            $products_result1->imagePath = $this->default_path.'filterType'.$ids_part.'.png';
+                        }
+                    }
+
+                    //product specification query
+                    $product_specs = DB::connection(self::$main_db)->select(
+                        "SELECT ms.PAName, mp.value, ms.PAID FROM part_attributes_mapper mp
+                        JOIN part_attributes_master ms ON mp.PAID = ms.PAID
+                        JOIN partNumberInfo p ON mp.part_id = p.part_id
+                        WHERE p.partNumber = ?
+                        GROUP BY ms.PAName
+                        ORDER BY FIELD(ms.PAName,'Shape','Gasket Material','Anti-Drain Back Valve','Thread Size','Bypass Relief Valve','Burst Pressure','Micron Rating','Gasket Thickness','Gasket Outside Diameter','Gasket Inside Diameter','Outside Diameter','Height','Width','Length','Side C Length','Side B Length','Side A Length') DESC",
+                        [$part]
+                    );
+
+                    if(!empty($product_specs)) {
+
+                        foreach ($product_specs as $product_specs1) {
+
+                            if($product_specs1->PAID == 19 && $flag_height==1){
+                                continue;
+                            }
+                                                                                                         
+                            $spec_value1 = '';
+                            $spec_value1 = strtoupper($product_specs1->value);
+
+                            //e.g 6.31 IN , 6.31IN
+                            if (preg_match('/^(\d+\.?\d*)IN$/', $spec_value1) == true || preg_match('/^(\d+\.?\d*) IN$/', $spec_value1) == true) {
+                                $spec_value = str_replace('IN', '',$spec_value1);
+                                
+                            }
+                            else {
+                                $spec_value = $product_specs1->value;
+                            }
+
+                        
+                            
+                            if (in_array($product_specs1->PAID, $PAID) && strpos($spec_value1, '/min') === false) {
+                                $reg_line = false;
+                                $reg_line = preg_match('/[|,±?\/]/', $spec_value); // check if | , / present in string
+                                if (strpos($spec_value1, 'MM') == true && strpos($spec_value1, 'IN') == false) {
+    
+                                    if (!$reg_line) {
+                                        $split_value_MM = explode("MM", $product_specs1->value);
+                                        $spec_value = trim($split_value_MM[0]);
+    
+                                        if (is_numeric($spec_value)) {
+                                            $spec_value = $spec_value / 25.4; //convert mm value to inch
+                                        }
+                                    } elseif ($reg_line) {
+    
+                                     
+                                        $components = preg_split('/[|,±?\/]/', $spec_value);
+    
+                                        if (count($components) > 0 && $components[0] != $spec_value) {
+                                            if(strpos($spec_value1, '±')!== false) {
+                                                $spec_value = $components[0];
+                                                if (is_numeric($spec_value)) {
+                                                    $spec_value = $spec_value / 25.4;
+                                                    $spec_value = round($spec_value, 2);
+                                                }
+                                                else {
+                                                    $spec_value = round($components[0], 2);
+                                                }
+                                            }
+                                            else {
+                                                $spec_value = round($components[0], 2);
+                                            }
+                                            
+                                        }
+                                    }
+                                } elseif (strpos($spec_value1, 'IN') !== false) {
+                                    $spec_value = str_replace('IN', '', $spec_value1);  
+                                    if ($reg_line) {
+    
+                                        $components = preg_split('/[|,±?\/]/', $spec_value);
+    
+                                        if (count($components) > 0 && $components[0] != $spec_value) {
+                                            $spec_value = round($components[0], 2);
+                                        }
+                                    }
+                                }
+                                else {
+                                    if ($reg_line) {
+    
+                                        $components = preg_split('/[|,±?\/]/', $spec_value);
+    
+                                        if (count($components) > 0 && $components[0] != $spec_value) {
+                                            $spec_value = round($components[0], 2);
+                                        }
+                                    }
+                                }
+    
+                            }
+
+                            $split_value_PAID = "";
+                            if ($product_specs1->PAID == 627 || $product_specs1->PAID == -627) {
+                                if (strpos($spec_value, 'KG') !== false) {
+                                    $split_value_PAID = explode(" KG", $spec_value);
+                                    $split_value_PAID[0] = round($split_value_PAID[0], 2);
+                                    $spec_value = $split_value_PAID[0] * 2.205;
+                                    $spec_value = round($spec_value, 2);
+                                    $spec_value = $spec_value . " LBS";
+                                } elseif (strpos($spec_value, 'PG') !== false) {
+                                    $split_value_PAID = explode("PG", $spec_value);
+                                    $split_value_PAID[0] = round($split_value_PAID[0], 2);
+                                    $spec_value = $split_value_PAID[0] * 2.20462E-15;
+                                    $spec_value = $spec_value * 1E15;
+                                    $spec_value = round($spec_value, 2);
+                                    $spec_value = $spec_value . " LBS";
+                                } else {
+                                    $spec_value = $spec_value;
+                                }
+                            }
+                            
+                           
+                            if($product_specs1->PAID == 31){
+                                    $flag_height=1;
+                            }
+                            $product_specs1->product_specs_name =  $product_specs1->PAName;                                                        
+                            
+
+                            //value
+                            if (in_array($product_specs1->PAID, $PAID) && strpos($spec_value1,'/min')===false) {
+
+                                //if '±' not present in the string and no two '.' present in string
+                                $reg_exp = preg_match('/[a-zA-Z\"\'\/^±£$%&*()}{@#~?><>,|=_+¬-]/', $spec_value);
+                                if (!$reg_exp && substr_count($spec_value, '.') < 2 ) {
+                                    $product_specs1->product_specs_value =  round($spec_value,2);  
+                                }
+                                else {
+                                    $product_specs1->product_specs_value = ucwords(trim($spec_value));
+                                }                                            
+                            } else {
+                                $product_specs1->product_specs_value = ucwords(trim($spec_value));
+                            }
+                        }
+                    }
+
+                    //custom key used
+                    $products_result1->spec = $product_specs;
+                }
+
+        return response()->json($products_result);
+    }
+
+
+    public function all_makemodelBK(Request $request) {
 
         $data = $request->all();
 
@@ -450,6 +715,86 @@ class ProductCompController extends Controller {
             
         }
 
+    }
+
+    public function all_makemodel(Request $request)
+    {
+        $data = $request->all();
+        $product_type = $data['parttype'] ?? '';
+        $fromyear = isset($data['fromyear']) ? (int) $data['fromyear'] : 0;
+        $toyear = isset($data['toyear']) ? (int) $data['toyear'] : 0;
+        $get_hidden_makes = $data['make_selected'] ?? '';
+        $get_hidden_models = $data['model_selected'] ?? '';
+
+        $partTypeCodeArray = [
+            'Oil Filter' => [5340], 'Air Filter' => [6192], 'Cabin Air Filter' => [6832],
+            'Fuel Filter' => [6200, 6216], 'Transmission Filter' => [8600, 10964],
+            'Housing Cap' => [54048], 'Drain Plug' => [5560, 5428], 'Wiper Blade' => [8852, 11713, 47330]
+        ];
+
+        if ($product_type === '' || !isset($partTypeCodeArray[$product_type])) {
+            return response()->json(['make' => [], 'model' => [], 'partnumber' => []]);
+        }
+
+        $partTypeIds = implode(',', array_map('intval', $partTypeCodeArray[$product_type]));
+        $baseWhere = "p.PartTerminologyID IN ($partTypeIds)";
+
+        $makeWhere = $baseWhere;
+        $makeBindings = [];
+        if ($fromyear > 0 && $toyear > 0) {
+            $makeWhere .= ' AND a.YearID BETWEEN ? AND ?';
+            $makeBindings = [$fromyear, $toyear];
+        }
+
+        $products['make'] = DB::connection(self::$main_db)->select(
+            "SELECT DISTINCT ma.MakeID, ma.MakeName FROM applications a
+            JOIN partNumberInfo p ON a.part_id = p.part_id
+            JOIN {$this->pg_secdb}.make ma ON a.MakeID = ma.MakeID
+            WHERE $makeWhere ORDER BY ma.MakeName ASC",
+            $makeBindings
+        );
+
+        $modelWhere = $makeWhere;
+        $modelBindings = $makeBindings;
+        if ($get_hidden_makes !== '') {
+            $makeIds = array_filter(array_map('intval', explode(',', $get_hidden_makes)));
+            if (!empty($makeIds)) {
+                $placeholders = implode(',', array_fill(0, count($makeIds), '?'));
+                $modelWhere .= " AND a.MakeID IN ($placeholders)";
+                $modelBindings = array_merge($modelBindings, $makeIds);
+            }
+        }
+
+        $products['model'] = DB::connection(self::$main_db)->select(
+            "SELECT DISTINCT m.ModelID, m.ModelName FROM applications a
+            JOIN partNumberInfo p ON a.part_id = p.part_id
+            JOIN {$this->pg_secdb}.model m ON a.ModelID = m.ModelID
+            WHERE $modelWhere ORDER BY m.ModelName ASC",
+            $modelBindings
+        );
+
+        $partWhere = $modelWhere;
+        $partBindings = $modelBindings;
+        if ($get_hidden_models !== '') {
+            $modelIds = array_filter(array_map('intval', explode(',', $get_hidden_models)));
+            if (!empty($modelIds)) {
+                $placeholders = implode(',', array_fill(0, count($modelIds), '?'));
+                $partWhere .= " AND a.ModelID IN ($placeholders)";
+                $partBindings = array_merge($partBindings, $modelIds);
+            }
+        }
+        $partWhere .= " AND p.partNumber NOT LIKE 'MG%' AND p.partNumber NOT IN ('NRC','NSC','NRA','NSA','NRO','NSO','NRF','NSF','NRT','NST','TBA','NR')";
+
+        $products['partnumber'] = DB::connection(self::$main_db)->select(
+            "SELECT p.partNumber as partnumber FROM applications a
+            JOIN {$this->pg_secdb}.make ma ON a.MakeID = ma.MakeID
+            JOIN {$this->pg_secdb}.model mo ON a.ModelID = mo.ModelID
+            JOIN partNumberInfo p ON a.part_id = p.part_id
+            WHERE $partWhere GROUP BY p.partNumber ORDER BY CAST(digits(p.partNumber) as UNSIGNED) DESC",
+            $partBindings
+        );
+
+        return response()->json($products);
     }
 
     

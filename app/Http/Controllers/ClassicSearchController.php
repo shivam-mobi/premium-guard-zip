@@ -1047,102 +1047,156 @@ class ClassicSearchController extends Controller
     }
 
 
+    // public function prodapplication_newBK(Request $request, $partNumber)
+    // {
+
+    //     $product = DB::connection(self::$aces_vcdb)
+    //         // ->select("SELECT STRAIGHT_JOIN a.YearID AS year,TRIM(ma.MakeName) AS make,TRIM(mo.ModelName) AS model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'), CONCAT(NULLIF(TRIM(`eb`.`Cylinders`), '-'), 'Cyl'), NULLIF(TRIM(`eb`.`BlockType`), '-'),NULLIF(`ft`.`EngineDisplay`, '-')) AS engine
+    //         // FROM $this->pg_db.applications a JOIN make ma ON a.MakeID = ma.MakeID 
+    //         // JOIN model mo ON a.ModelID = mo.ModelID 
+    //         // JOIN engineconfig ec ON a.EngineConfigID = ec.EngineConfigID 
+    //         // JOIN enginebase eb ON a.EngineBaseID = eb.EngineBaseID 
+    //         // LEFT JOIN $this->pg_db.fueltype_web_display_mappings ft ON ec.FuelTypeID = ft.FuelTypeID 
+    //         // WHERE a.partnumber='$partNumber' 
+    //         // GROUP BY year,make,model,engine  
+    //         // ORDER BY make,model,engine,year");
+    //         ->select("SELECT a.YearID AS year,TRIM(ma.MakeName) AS make,TRIM(mo.ModelName) AS model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'), CONCAT(NULLIF(TRIM(`eb`.`Cylinders`), '-'), 'Cyl'), NULLIF(TRIM(`eb`.`BlockType`), '-'),NULLIF(`ft`.`EngineDisplay`, '-')) AS engine
+    //             FROM $this->pg_db.applications a
+    //             JOIN $this->pg_secdb.make ma ON a.MakeID = ma.MakeID 
+    //             JOIN $this->pg_secdb.model mo ON a.ModelID = mo.ModelID 
+    //             JOIN $this->pg_secdb.engineconfig ec ON a.EngineConfigID = ec.EngineConfigID 
+    //             JOIN $this->pg_secdb.enginebase eb ON a.EngineBaseID = eb.EngineBaseID 
+    //             LEFT JOIN $this->pg_db.fueltype_web_display_mappings ft ON ec.FuelTypeID = ft.FuelTypeID 
+    //             JOIN $this->pg_db.partNumberInfo pni ON a.part_id = pni.part_id
+    //             WHERE pni.partNumber='$partNumber' 
+    //             GROUP BY year,make,model,engine  
+    //             ORDER BY make,model,engine,year");
+
+
+
+
+    //     if (!empty($product)) {
+
+    //         $year_range = [];
+    //         $products_final = [];
+
+    //         foreach ($product as $keys => $value) {
+
+
+    //             $reuse_code = false;
+
+    //             $current_year = $value->year;
+    //             $current_mme = $value->make . " " . $value->model . " " . $value->engine;
+
+    //             if (isset($product[$keys + 1])) {
+
+    //                 $next_row = $product[$keys + 1];
+    //                 $next_mme = $next_row->make . " " . $next_row->model . " " . $next_row->engine;
+
+    //                 if ($current_mme == $next_mme) {
+
+    //                     $next_year = $next_row->year;
+    //                     if (($current_year + 1) == $next_year) {
+    //                         array_push($year_range, $current_year);
+    //                     } else {
+    //                         $reuse_code = true;
+    //                     }
+    //                 } else {
+    //                     $reuse_code = true;
+    //                 }
+    //             } else {
+    //                 $reuse_code = true;
+    //             }
+
+
+    //             //if mme is different,last element of array,if ymm same but range years not incremented by 1
+    //             if ($reuse_code == true) {
+
+    //                 if (count($year_range) > 0) {
+
+    //                     array_push($year_range, $current_year);
+
+    //                     $min = min($year_range);
+    //                     $max = max($year_range);
+    //                     $min_max = $min . "-" . $max;
+
+
+    //                     $value->year = $min_max;
+
+    //                     $year_range = [];
+
+    //                 } else {
+    //                     $value->year = $current_year;
+    //                 }
+
+    //                 array_push($products_final, $value);
+    //             }
+
+    //         }
+
+    //     }
+
+
+    //     $results["applications"] = $products_final;
+
+    //     return json_encode($results);
+    // }
+
     public function prodapplication_new(Request $request, $partNumber)
     {
-
-        $product = DB::connection(self::$aces_vcdb)
-            // ->select("SELECT STRAIGHT_JOIN a.YearID AS year,TRIM(ma.MakeName) AS make,TRIM(mo.ModelName) AS model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'), CONCAT(NULLIF(TRIM(`eb`.`Cylinders`), '-'), 'Cyl'), NULLIF(TRIM(`eb`.`BlockType`), '-'),NULLIF(`ft`.`EngineDisplay`, '-')) AS engine
-            // FROM $this->pg_db.applications a JOIN make ma ON a.MakeID = ma.MakeID 
-            // JOIN model mo ON a.ModelID = mo.ModelID 
-            // JOIN engineconfig ec ON a.EngineConfigID = ec.EngineConfigID 
-            // JOIN enginebase eb ON a.EngineBaseID = eb.EngineBaseID 
-            // LEFT JOIN $this->pg_db.fueltype_web_display_mappings ft ON ec.FuelTypeID = ft.FuelTypeID 
-            // WHERE a.partnumber='$partNumber' 
-            // GROUP BY year,make,model,engine  
-            // ORDER BY make,model,engine,year");
-            ->select("SELECT a.YearID AS year,TRIM(ma.MakeName) AS make,TRIM(mo.ModelName) AS model,CONCAT_WS(' ', CONCAT(NULLIF(TRIM(`eb`.`Liter`),'-'), 'L'), CONCAT(NULLIF(TRIM(`eb`.`Cylinders`), '-'), 'Cyl'), NULLIF(TRIM(`eb`.`BlockType`), '-'),NULLIF(`ft`.`EngineDisplay`, '-')) AS engine
-                FROM $this->pg_db.applications a
-                JOIN $this->pg_secdb.make ma ON a.MakeID = ma.MakeID 
-                JOIN $this->pg_secdb.model mo ON a.ModelID = mo.ModelID 
-                JOIN $this->pg_secdb.engineconfig ec ON a.EngineConfigID = ec.EngineConfigID 
-                JOIN $this->pg_secdb.enginebase eb ON a.EngineBaseID = eb.EngineBaseID 
-                LEFT JOIN $this->pg_db.fueltype_web_display_mappings ft ON ec.FuelTypeID = ft.FuelTypeID 
-                JOIN $this->pg_db.partNumberInfo pni ON a.part_id = pni.part_id
-                WHERE pni.partNumber='$partNumber' 
-                GROUP BY year,make,model,engine  
-                ORDER BY make,model,engine,year");
-
-
-
-
-        if (!empty($product)) {
-
-            $year_range = [];
-            $products_final = [];
-
-            foreach ($product as $keys => $value) {
-
-
-                $reuse_code = false;
-
-                $current_year = $value->year;
-                $current_mme = $value->make . " " . $value->model . " " . $value->engine;
-
-                if (isset($product[$keys + 1])) {
-
-                    $next_row = $product[$keys + 1];
-                    $next_mme = $next_row->make . " " . $next_row->model . " " . $next_row->engine;
-
-                    if ($current_mme == $next_mme) {
-
-                        $next_year = $next_row->year;
-                        if (($current_year + 1) == $next_year) {
-                            array_push($year_range, $current_year);
-                        } else {
-                            $reuse_code = true;
-                        }
-                    } else {
-                        $reuse_code = true;
-                    }
-                } else {
-                    $reuse_code = true;
-                }
-
-
-                //if mme is different,last element of array,if ymm same but range years not incremented by 1
-                if ($reuse_code == true) {
-
-                    if (count($year_range) > 0) {
-
-                        array_push($year_range, $current_year);
-
-                        $min = min($year_range);
-                        $max = max($year_range);
-                        $min_max = $min . "-" . $max;
-
-
-                        $value->year = $min_max;
-
-                        $year_range = [];
-
-                    } else {
-                        $value->year = $current_year;
-                    }
-
-                    array_push($products_final, $value);
-                }
-
-            }
-
+        set_time_limit(300);
+        $partNumber = trim($partNumber ?? '');
+        if ($partNumber === '') {
+            return response()->json(['applications' => []]);
         }
 
+        $product = DB::connection(self::$aces_vcdb)->select(
+            "SELECT a.YearID AS year, TRIM(ma.MakeName) AS make, TRIM(mo.ModelName) AS model,
+                CONCAT_WS(' ', CONCAT(NULLIF(TRIM(eb.Liter),'-'), 'L'), CONCAT(NULLIF(TRIM(eb.Cylinders), '-'), 'Cyl'),
+                NULLIF(TRIM(eb.BlockType), '-'), NULLIF(ft.EngineDisplay, '-')) AS engine
+            FROM {$this->pg_db}.applications a
+            JOIN {$this->pg_secdb}.make ma ON a.MakeID = ma.MakeID
+            JOIN {$this->pg_secdb}.model mo ON a.ModelID = mo.ModelID
+            JOIN {$this->pg_secdb}.engineconfig ec ON a.EngineConfigID = ec.EngineConfigID
+            JOIN {$this->pg_secdb}.enginebase eb ON a.EngineBaseID = eb.EngineBaseID
+            LEFT JOIN {$this->pg_db}.fueltype_web_display_mappings ft ON ec.FuelTypeID = ft.FuelTypeID
+            JOIN {$this->pg_db}.partNumberInfo pni ON a.part_id = pni.part_id
+            WHERE pni.partNumber = ?
+            GROUP BY year, make, model, engine
+            ORDER BY make, model, engine, year",
+            [$partNumber]
+        );
 
-        $results["applications"] = $products_final;
+        $products_final = [];
+        $year_range = [];
 
-        return json_encode($results);
+        foreach ($product as $keys => $value) {
+            $current_year = (int) $value->year;
+            $current_mme = $value->make . ' ' . $value->model . ' ' . $value->engine;
+
+            $reuse_code = !isset($product[$keys + 1])
+                || $current_mme !== ($product[$keys + 1]->make . ' ' . $product[$keys + 1]->model . ' ' . $product[$keys + 1]->engine)
+                || ($current_year + 1) !== (int) $product[$keys + 1]->year;
+
+            if ($reuse_code) {
+                if (count($year_range) > 0) {
+                    $year_range[] = $current_year;
+                    $value->year = min($year_range) . '-' . max($year_range);
+                    $year_range = [];
+                } else {
+                    $value->year = $current_year;
+                }
+                $products_final[] = $value;
+            } else {
+                $year_range[] = $current_year;
+            }
+        }
+
+        return response()->json(['applications' => $products_final]);
     }
 
-    public function prodapplication_count(Request $request, $partNumber)
+
+    public function prodapplication_countBK(Request $request, $partNumber)
     {
 
         $product_count = DB::connection(self::$aces_vcdb)
@@ -1170,6 +1224,37 @@ class ClassicSearchController extends Controller
         return $product_count;
     }
 
+    public function prodapplication_count(Request $request, $partNumber)
+    {
+        $partNumber = trim($partNumber ?? '');
+        if ($partNumber === '') {
+            return response()->json([['row_count' => 0]]);
+        }
+
+        $product_count = DB::connection(self::$aces_vcdb)->select(
+            "SELECT COUNT(*) as row_count FROM (
+                SELECT DISTINCT CAST(a.YearID AS char) as year, TRIM(ma.MakeName) as make, a.MakeID, a.ModelID,
+                GROUP_CONCAT(DISTINCT a.EngineBaseID) as EngineBaseID, TRIM(mo.ModelName) as model,
+                CONCAT_WS(' ', CONCAT(NULLIF(TRIM(eb.Liter),'-'), 'L'), CONCAT(NULLIF(TRIM(eb.Cylinders), '-'), 'Cyl'),
+                NULLIF(TRIM(eb.BlockType), '-'), NULLIF(ft.EngineDisplay, '-')) AS engine,
+                COUNT(a.id) as numberofrec, min(a.YearID) as minyear, max(a.YearID) as maxyear
+                FROM {$this->pg_db}.applications a
+                JOIN {$this->pg_secdb}.make ma ON a.MakeID = ma.MakeID
+                JOIN {$this->pg_secdb}.model mo ON a.ModelID = mo.ModelID
+                JOIN {$this->pg_secdb}.engineconfig ec ON a.EngineConfigID = ec.EngineConfigID
+                JOIN {$this->pg_secdb}.enginebase eb ON a.EngineBaseID = eb.EngineBaseID
+                LEFT JOIN {$this->pg_db}.fueltype_web_display_mappings ft ON ec.FuelTypeID = ft.FuelTypeID
+                JOIN {$this->pg_db}.partNumberInfo pni ON a.part_id = pni.part_id
+                WHERE pni.partNumber = ?
+                GROUP BY make, model, engine
+                ORDER BY make, model, engine
+            ) as cnt",
+            [$partNumber]
+        );
+
+        return response()->json($product_count);
+    }
+
 
     public function prodapplication1(Request $request, $partNumber, $makeID, $modelID, $engineConfigID, $min, $max)
     {
@@ -1190,10 +1275,6 @@ class ClassicSearchController extends Controller
     public function partinterchanges(Request $request, $partNumber)
     {
         $results["product"] = DB::connection(self::$main_db)
-            // ->select("SELECT pm.partIntPartNumber,ib.interchange_name 
-            // FROM partInterchange_mapper pm JOIN Interchangename_brandcode_mapper ib ON pm.InterchangeNotes=ib.id 
-            // WHERE pm.partNumber='$partNumber' 
-            // ORDER BY ib.interchange_name");
             ->select("SELECT pm.partIntPartNumber,ib.BrandName as interchange_name 
                             FROM partInterchange_mapper pm
                             JOIN Interchangename_brandcode_mapper ib ON pm.partIntBrandID=ib.BrandID AND pm.partIntSubBrandID <=> ib.SubBrandID

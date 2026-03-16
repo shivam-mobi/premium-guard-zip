@@ -391,16 +391,29 @@ class DynamicController extends Controller
     }
 
 
-    public function intersuperseded(Request $request,$partNumber)
-    {
-        // $superseded=DB::connection(self::$main_db)->select("SELECT p.EI_PTS,p.partType,pm.partTypename 
-        //         FROM partNumberInfo p JOIN parttype_master pm ON pm.partTypeid=p.partType 
-        //         WHERE partNumber='$partNumber'");
-        $superseded=DB::connection(self::$main_db)->select("SELECT p.PartTerminologyID as partType,pm.partTypename 
-                FROM partNumberInfo p JOIN parttype_master pm ON pm.PartTerminologyID=p.PartTerminologyID 
-                WHERE partNumber='$partNumber'");
+    // public function intersupersededBK(Request $request,$partNumber)
+    // {
+    //     // $superseded=DB::connection(self::$main_db)->select("SELECT p.EI_PTS,p.partType,pm.partTypename 
+    //     //         FROM partNumberInfo p JOIN parttype_master pm ON pm.partTypeid=p.partType 
+    //     //         WHERE partNumber='$partNumber'");
+    //     $superseded=DB::connection(self::$main_db)->select("SELECT p.PartTerminologyID as partType,pm.partTypename 
+    //             FROM partNumberInfo p JOIN parttype_master pm ON pm.PartTerminologyID=p.PartTerminologyID 
+    //             WHERE partNumber='$partNumber'");
                 
-        return json_encode($superseded);
+    //     return json_encode($superseded);
+    // }
+
+    public function intersuperseded(Request $request, $partNumber)
+    {
+        $superseded = DB::connection(self::$main_db)->select(
+            "SELECT p.PartTerminologyID as partType, pm.partTypename
+            FROM partNumberInfo p
+            JOIN parttype_master pm ON pm.PartTerminologyID = p.PartTerminologyID
+            WHERE p.partNumber = ?",
+            [trim($partNumber ?? '')]
+        );
+
+        return response()->json($superseded);
     }
 
     public function interchangeParttype(Request $request,$partNumber)

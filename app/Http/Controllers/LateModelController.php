@@ -28,18 +28,30 @@ class LateModelController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function index(Request $request)
+    public function indexBK(Request $request)
     {
         $products["years"] = DB::connection(self::$main_db)->table('applications')
                                                   ->selectRaw('DISTINCT(YearID) as year')
                                                   ->orderBy('year','DESC')
                                                   ->take(3)
                                                   ->get();
-        return json_encode($products);
+        return response()->json($products);
     	
     }
 
-    public function allresult(Request $request,$year,$id=null,$parttypename=null)
+    public function index(Request $request)
+    {
+        $years = DB::connection(self::$main_db)->table('applications')
+            ->select('YearID as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->limit(3)
+            ->get();
+
+        return response()->json(['years' => $years]);
+    }
+
+    public function allresultBK(Request $request,$year,$id=null,$parttypename=null)
     {
 
         if($id==null && $parttypename==null) {
@@ -221,5 +233,76 @@ class LateModelController extends Controller
   
         }
     	
+    }
+
+    public function allresult(Request $request, $year, $id = null, $parttypename = null)
+    {
+        set_time_limit(300);
+        $partTypeNames = ['Oil Filter', 'Air Filter', 'Cabin Air Filter', 'Fuel Filter', 'Transmission Filter', 'Housing Cap', 'Drain Plug', 'Wiper Blade'];
+        $partTypeArray = ['1' => [5340], '2' => [6192], '3' => [6832], '4' => [6200, 6216], '5' => [8600, 10964], '6' => [54048], '7' => [5560, 5428], '8' => [8852, 11713, 47330]];
+
+        $products = [
+            'parttypes' => array_map(fn($name) => (object)['partTypename' => $name], $partTypeNames),
+            'allresult' => []
+        ];
+
+        if ($id === null && $parttypename === null) {
+            $id = '1';
+            $parttypename = 'Oil Filter';
+        }
+
+        $year = (int) $year;
+        if ($year <= 0 || !isset($partTypeArray[(string) $id]) || $parttypename === '') {
+            return response()->json($products);
+        }
+
+        $parttypeid = implode(',', array_map('intval', $partTypeArray[(string) $id]));
+        $parttypename = str_replace(' ', '-', $parttypename);
+
+        $get_partnumbers = DB::connection(self::$main_db)->select(
+            "SELECT p.partNumber as partnumber, TRIM(ma.MakeName) AS make, TRIM(mo.ModelName) AS model, p.PartTerminologyID as partType
+            FROM applications a
+            JOIN {$this->pg_secdb}.make ma ON a.MakeID = ma.MakeID
+            JOIN {$this->pg_secdb}.model mo ON a.ModelID = mo.ModelID
+            JOIN partNumberInfo p ON a.part_id = p.part_id
+            WHERE p.PartTerminologyID IN ($parttypeid) AND a.YearID = ? AND p.partNumber NOT LIKE 'MG%'
+            AND p.partNumber NOT IN ('NSO','NSA','NSC','NSF','NST','NRO','NRA','NRC','NRF','NRT','TBA','NR')
+            GROUP BY p.partNumber ORDER BY CAST(digits(p.partNumber) AS UNSIGNED) DESC",
+            [$year]
+        );
+
+        $defaultImages = ['6' => 'PgFilterLookupOILCAP.png', '7' => 'PgFilterLookupDRAINPLUG.png', '8' => 'PgFilterLookupREARWIPER.png'];
+
+        foreach ($get_partnumbers as $value) {
+            $part = $value->partnumber;
+            $value->partTypeName = (strtoupper(substr($part, 0, 2)) === 'DF') ? 'Diesel-Fuel-Filter' : $parttypename;
+            $value->make = str_replace(' ', '-', $value->make);
+            $value->model = str_replace(' ', '-', $value->model);
+            $value->year = $year;
+
+            $productImg = DB::connection(self::$main_db)->select(
+                "SELECT fileName FROM image_mapper im JOIN partNumberInfo p ON im.part_id = p.part_id
+                WHERE p.partNumber = ?
+                ORDER BY CASE WHEN fileName LIKE '%ZZ2_FRO.%' THEN 1 WHEN fileName LIKE '%P02_.%' THEN 2
+                WHEN fileName LIKE '%P04_FRO.%' THEN 3 WHEN fileName LIKE '%P01_BAC.%' THEN 4
+                WHEN fileName LIKE '%P01_TOP.%' THEN 5 WHEN fileName LIKE '%P01_BOT.%' THEN 6
+                WHEN fileName LIKE '%P01_SID.%' THEN 7 WHEN fileName LIKE '%P01_LEF.%' THEN 8
+                WHEN fileName LIKE '%P01_RIG.%' THEN 9 WHEN fileName LIKE '%P01_ANG.%' THEN 10
+                WHEN fileName LIKE '%-F.%' THEN 11 WHEN fileName LIKE '%-E.%' THEN 12
+                WHEN fileName LIKE '%-A.%' THEN 13 WHEN fileName LIKE '%-B.%' THEN 14
+                WHEN fileName LIKE '%-C.%' THEN 15 WHEN fileName LIKE '%-D.%' THEN 16
+                WHEN fileName LIKE '%-G.%' THEN 17 WHEN fileName LIKE '%-H.%' THEN 18
+                WHEN fileName LIKE '%-K.%' THEN 19 WHEN fileName LIKE '%-I.%' THEN 20 ELSE 21 END LIMIT 1",
+                [$part]
+            );
+
+            $value->image_path = count($productImg) > 0
+                ? $this->image_path . $productImg[0]->fileName
+                : $this->default_path . ($defaultImages[(string) $id] ?? 'filterType' . $id . '.png');
+        }
+
+        $products['allresult'] = $get_partnumbers;
+
+        return response()->json($products);
     }
 }
