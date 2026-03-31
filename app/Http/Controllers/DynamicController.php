@@ -533,6 +533,8 @@ class DynamicController extends Controller
     public function vinsearch(Request $request, $vinsearch)
     {
         $vin = trim($vinsearch ?? '');
+        // echo $vin;
+        
         $response = ['res' => 'nodata'];
 
         if ($vin === '') {
@@ -559,6 +561,8 @@ class DynamicController extends Controller
             $data = json_decode($authResponse->getBody()->getContents(), true);
             $accessToken = $data['access_token'] ?? '';
 
+            // echo $accessToken;
+            // exit;
             if ($accessToken === '') {
                 return response()->json($response);
             }
