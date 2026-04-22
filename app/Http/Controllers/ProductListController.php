@@ -72,6 +72,8 @@ class ProductListController extends Controller
         $imageSubquery = "LEFT JOIN ( SELECT part_id, SUBSTRING_INDEX(GROUP_CONCAT(fileName ORDER BY img_id), ',', 1) as fileName FROM image_mapper GROUP BY part_id ) im ON p.part_id = im.part_id ";
         $partImageSelect = ", MAX(im.fileName) as part_image ";
 
+        
+
         $partTypeArray = DB::connection(self::$main_db)
                                     // ->select(DB::raw("SELECT DISTINCT(p.partNumber),CONCAT_WS(',',GROUP_CONCAT(CONCAT('FuelTypeID:', IFNULL(a.FuelTypeID,''))),GROUP_CONCAT(CONCAT('AspirationID:', IFNULL(a.AspirationID,''))),GROUP_CONCAT(CONCAT('DriveTypeID:', IFNULL(a.DriveTypeID,''))),GROUP_CONCAT(CONCAT('EngineVINID:', IFNULL(a.EngineVINID,''))),GROUP_CONCAT(CONCAT('EngineDesignationID:', IFNULL(a.EngineDesignationID,''))),GROUP_CONCAT(CONCAT('CylinderHeadTypeID:', IFNULL(a.CylinderHeadTypeID,''))),GROUP_CONCAT(CONCAT('SubModelID:', IFNULL(a.SubModelID,''))),GROUP_CONCAT(CONCAT('TransmissionControlTypeID:', IFNULL(a.TransmissionControlTypeID,''))),GROUP_CONCAT(CONCAT('TransmissionNumSpeedsID:', IFNULL(a.TransmissionNumSpeedsID,''))),GROUP_CONCAT(CONCAT('ValvesPerEngineID:', IFNULL(a.ValvesPerEngineID,''))),GROUP_CONCAT(CONCAT('FuelDeliveryTypeID:', IFNULL(a.FuelDeliveryTypeID,''))),GROUP_CONCAT(CONCAT('BedTypeID:', IFNULL(a.BedTypeID,''))),GROUP_CONCAT(CONCAT('BodyNumDoorsID:', IFNULL(a.BodyNumDoorsID,''))),GROUP_CONCAT(CONCAT('EngineMfrID:', IFNULL(a.EngineMfrID,''))),GROUP_CONCAT(CONCAT('FuelDeliverySubTypeID:', IFNULL(a.FuelDeliverySubTypeID,''))),GROUP_CONCAT(CONCAT('FuelSystemControlTypeID:', IFNULL(a.FuelSystemControlTypeID,''))),GROUP_CONCAT(CONCAT('FuelSystemDesignID:', IFNULL(a.FuelSystemDesignID,''))),GROUP_CONCAT(CONCAT('SteeringTypeID:', IFNULL(a.SteeringTypeID,''))),GROUP_CONCAT(CONCAT('TransmissionTypeID:', IFNULL(a.TransmissionTypeID,''))),GROUP_CONCAT(CONCAT('BedLengthID:', IFNULL(a.BedLengthID,''))),GROUP_CONCAT(CONCAT('BodyTypeID:', IFNULL(a.BodyTypeID,''))),GROUP_CONCAT(CONCAT('BrakeABSID:', IFNULL(a.BrakeABSID,''))),GROUP_CONCAT(CONCAT('BrakeSystemID:', IFNULL(a.BrakeSystemID,''))),GROUP_CONCAT(CONCAT('EngineVersionID:', IFNULL(a.EngineVersionID,''))),GROUP_CONCAT(CONCAT('FrontBrakeTypeID:', IFNULL(a.FrontBrakeTypeID,''))),GROUP_CONCAT(CONCAT('FrontSpringTypeID:', IFNULL(a.FrontSpringTypeID,''))),GROUP_CONCAT(CONCAT('IgnitionSystemTypeID:', IFNULL(a.IgnitionSystemTypeID,''))),GROUP_CONCAT(CONCAT('MfrBodyCodeID:', IFNULL(a.MfrBodyCodeID,''))),GROUP_CONCAT(CONCAT('PowerOutputID:', IFNULL(a.PowerOutputID,''))),GROUP_CONCAT(CONCAT('RearBrakeTypeID:', IFNULL(a.RearBrakeTypeID,''))),GROUP_CONCAT(CONCAT('RearSpringTypeID:', IFNULL(a.RearSpringTypeID,''))),GROUP_CONCAT(CONCAT('RegionID:', IFNULL(a.RegionID,''))),GROUP_CONCAT(CONCAT('SteeringSystemID:', IFNULL(a.SteeringSystemID,''))),GROUP_CONCAT(CONCAT('TransElecControlledID:', IFNULL(a.TransElecControlledID,''))),GROUP_CONCAT(CONCAT('TransmissionMfrID:', IFNULL(a.TransmissionMfrID,''))),GROUP_CONCAT(CONCAT('TransmissionMfrCodeID:', IFNULL(a.TransmissionMfrCodeID,''))),GROUP_CONCAT(CONCAT('WheelBaseID:', IFNULL(a.WheelBaseID,'')))) as q,p.partType,pm.partTypename,GROUP_CONCAT(DISTINCT a.note SEPARATOR '; ') as note_merged,a.note,a.BaseVehicleID,a.EngineBaseID $qualifierspe 
                                     // FROM partNumberInfo p LEFT JOIN applications a ON p.partNumber=a.partnumber 
@@ -215,8 +217,40 @@ class ProductListController extends Controller
             }
         }
 
-        $imageSubquery = 'LEFT JOIN ( SELECT part_id, SUBSTRING_INDEX(GROUP_CONCAT(fileName ORDER BY img_id), ",", 1) as fileName FROM image_mapper GROUP BY part_id ) im ON p.part_id = im.part_id ';
-        $partImageSelect = ', MAX(im.fileName) as part_image ';
+        // $imageSubquery = 'LEFT JOIN ( SELECT part_id, SUBSTRING_INDEX(GROUP_CONCAT(fileName ORDER BY img_id), ",", 1) as fileName FROM image_mapper GROUP BY part_id ) im ON p.part_id = im.part_id ';
+        // $partImageSelect = ', MAX(im.fileName) as part_image ';
+
+        $imageSubquery = <<<'SQL'
+        LEFT JOIN (
+          SELECT part_id,
+              SUBSTRING_INDEX(
+                  GROUP_CONCAT(
+                      fileName
+                      ORDER BY
+                          CASE
+                              WHEN fileName LIKE '%ZZ2_FRO.%' THEN 1 WHEN fileName LIKE '%P02_.%' THEN 2
+                              WHEN fileName LIKE '%P04_FRO.%' THEN 3 WHEN fileName LIKE '%P01_BAC.%' THEN 4
+                              WHEN fileName LIKE '%P01_TOP.%' THEN 5 WHEN fileName LIKE '%P01_BOT.%' THEN 6
+                              WHEN fileName LIKE '%P01_SID.%' THEN 7 WHEN fileName LIKE '%P01_LEF.%' THEN 8
+                              WHEN fileName LIKE '%P01_RIG.%' THEN 9 WHEN fileName LIKE '%P01_ANG.%' THEN 10
+                              WHEN fileName LIKE '%-F.%' THEN 11 WHEN fileName LIKE '%-E.%' THEN 12
+                              WHEN fileName LIKE '%-A.%' THEN 13 WHEN fileName LIKE '%-B.%' THEN 14
+                              WHEN fileName LIKE '%-C.%' THEN 15 WHEN fileName LIKE '%-D.%' THEN 16
+                              WHEN fileName LIKE '%-G.%' THEN 17 WHEN fileName LIKE '%-H.%' THEN 18
+                              WHEN fileName LIKE '%-K.%' THEN 19 WHEN fileName LIKE '%-I.%' THEN 20
+                              ELSE 21
+                          END,
+                          img_id
+                  ),
+                  ',',
+                  1
+              ) AS fileName
+          FROM image_mapper
+          GROUP BY part_id
+        ) im ON p.part_id = im.part_id
+        SQL;
+        $partImageSelect = ", MAX(im.fileName) as part_image ";
+        
         $results = [];
 
         $partTypeArray = DB::connection(self::$main_db)
