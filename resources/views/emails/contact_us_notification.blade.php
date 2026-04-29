@@ -47,7 +47,7 @@
 
               <p style="margin-top:20px;">Please review and take the necessary action.</p>
 
-              <p>Best regards,<br>{{ config('app.name') }}</p>
+              <p>Best regards,<br>Premium Guard</p>
             </td>
           </tr>
 

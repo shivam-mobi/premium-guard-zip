@@ -62,10 +62,10 @@ class ContactUsController extends Controller
         $validated = $validator->validated();
         $contact = ContactUs::create($validated);
 
-        $adminEmail = 'gaurav@mobikasa.com';//Setting::first()?->email ?: config('mail.admin_address');
+        $adminEmail = 'nitinkumar@mobikasa.com';//Setting::first()?->email ?: config('mail.admin_address');
         if ($adminEmail) {
             try {
-                Mail::to($adminEmail)->cc('dinesh@mobikasa.com')->send(new ContactUsNotification($contact));
+                Mail::to($adminEmail)->bcc('dinesh@mobikasa.com')->send(new ContactUsNotification($contact));
             } catch (\Throwable $e) {
                 Log::error('Contact form: failed to notify admin', ['exception' => $e]);
             }
@@ -74,7 +74,6 @@ class ContactUsController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Thank you for contacting us. We will get back to you soon.',
-            //'data' => $contact,
         ], 201);
     }
 
