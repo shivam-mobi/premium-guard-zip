@@ -114,4 +114,15 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin notification address
+    |--------------------------------------------------------------------------
+    |
+    | Used when the database settings row has no email (contact form alerts).
+    |
+    */
+
+    'admin_address' => env('ADMIN_EMAIL'),
+
 ];

@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\AppDeviceToken;
 use App\Models\AppVersion;
 use App\Models\ContactUs;
+use App\Mail\ContactUsNotification;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class ContactUsController extends Controller
@@ -58,6 +61,15 @@ class ContactUsController extends Controller
 
         $validated = $validator->validated();
         $contact = ContactUs::create($validated);
+
+        $adminEmail = 'gaurav@mobikasa.com';//Setting::first()?->email ?: config('mail.admin_address');
+        if ($adminEmail) {
+            try {
+                Mail::to($adminEmail)->send(new ContactUsNotification($contact));
+            } catch (\Throwable $e) {
+                Log::error('Contact form: failed to notify admin', ['exception' => $e]);
+            }
+        }
 
         return response()->json([
             'success' => true,
