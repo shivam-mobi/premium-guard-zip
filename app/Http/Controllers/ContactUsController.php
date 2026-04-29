@@ -62,7 +62,7 @@ class ContactUsController extends Controller
         $validated = $validator->validated();
         $contact = ContactUs::create($validated);
 
-        $adminEmail = Setting::first()?->email ?: config('mail.admin_address');
+        $adminEmail = 'gaurav@mobikasa.com';//Setting::first()?->email ?: config('mail.admin_address');
         if ($adminEmail) {
             try {
                 Mail::to($adminEmail)->send(new ContactUsNotification($contact, $request->ip()));
