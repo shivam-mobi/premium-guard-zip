@@ -65,7 +65,7 @@ class ContactUsController extends Controller
         $adminEmail = 'gaurav@mobikasa.com';//Setting::first()?->email ?: config('mail.admin_address');
         if ($adminEmail) {
             try {
-                Mail::to($adminEmail)->cc('dinesh@mobikasa.com')->send(new ContactUsNotification($contact, $request->ip()));
+                Mail::to($adminEmail)->cc('dinesh@mobikasa.com')->send(new ContactUsNotification($contact));
             } catch (\Throwable $e) {
                 Log::error('Contact form: failed to notify admin', ['exception' => $e]);
             }
